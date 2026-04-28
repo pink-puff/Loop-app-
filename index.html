@@ -4,585 +4,273 @@
 <meta charset="UTF-8" />
 <title>Loop</title>
 <style>
-  /* ============================================================
-     Theme variables
-     ============================================================ */
+  /* ============================================================ Theme */
   :root {
-    --bg: #f5f3ef;
-    --card: #ffffff;
-    --card-soft: #faf8f4;
-    --text: #2e2c28;
-    --muted: #7a7468;
-    --border: #e2ddd5;
-    --border-soft: #efeae0;
-    --soft: #ece6dc;
-    --soft-hover: #ddd5c8;
-    --accent: #b8a890;
-    --accent-hover: #a08f76;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 6px 22px rgba(0,0,0,0.10);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.22);
-
-    --pill-overdue: #d44a4a;
-    --pill-soon: #e08a2a;
-    --pill-done: #4d9a4d;
-    --pill-neutral-bg: #ece6dc;
-    --pill-neutral-fg: #5a554d;
-
-    --tone-overdue-card: #fdecec;
-    --tone-overdue-border: #f1c5c5;
-    --tone-soon-card: #fdf2e2;
-    --tone-soon-border: #efd6ae;
-    --tone-done-card: #eef6ec;
-    --tone-done-border: #cee0c9;
-
-    --tone-overdue-task: #fbdada;
-    --tone-soon-task: #faebd0;
-    --tone-done-task: #e6f1e3;
-
-    --selected: #b8a890;
-    --selected-fg: #fff;
-    --today-ring: #b8a890;
+    --bg:#f5f3ef; --card:#fff; --card-soft:#faf8f4;
+    --text:#2e2c28; --muted:#7a7468;
+    --border:#e2ddd5; --border-soft:#efeae0;
+    --soft:#ece6dc; --soft-hover:#ddd5c8;
+    --accent:#b8a890; --accent-hover:#a08f76;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:0 6px 22px rgba(0,0,0,0.10);
+    --shadow-lg:0 12px 40px rgba(0,0,0,0.22);
+    --pill-overdue:#d44a4a; --pill-soon:#e08a2a; --pill-done:#4d9a4d;
+    --pill-neutral-bg:#ece6dc; --pill-neutral-fg:#5a554d;
+    --tone-overdue-card:#fdecec; --tone-overdue-border:#f1c5c5;
+    --tone-soon-card:#fdf2e2;    --tone-soon-border:#efd6ae;
+    --tone-done-card:#eef6ec;    --tone-done-border:#cee0c9;
+    --tone-overdue-task:#fbdada; --tone-soon-task:#faebd0; --tone-done-task:#e6f1e3;
+    --selected:#b8a890; --selected-fg:#fff; --today-ring:#b8a890;
+    --drop-line:#b8a890;
   }
-
   [data-theme="dark"] {
-    --bg: #1c1a18;
-    --card: #2a2724;
-    --card-soft: #322f2c;
-    --text: #ece6dc;
-    --muted: #a8a298;
-    --border: #3d3833;
-    --border-soft: #34302c;
-    --soft: #3a3631;
-    --soft-hover: #4a453f;
-    --accent: #b8a890;
-    --accent-hover: #cdbda3;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
-    --shadow-md: 0 6px 22px rgba(0,0,0,0.5);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+    --bg:#1c1a18; --card:#2a2724; --card-soft:#322f2c;
+    --text:#ece6dc; --muted:#a8a298;
+    --border:#3d3833; --border-soft:#34302c;
+    --soft:#3a3631; --soft-hover:#4a453f;
+    --accent:#b8a890; --accent-hover:#cdbda3;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md:0 6px 22px rgba(0,0,0,0.5);
+    --shadow-lg:0 12px 40px rgba(0,0,0,0.6);
+    --pill-overdue:#b94040; --pill-soon:#b97525; --pill-done:#4a8a4a;
+    --pill-neutral-bg:#3d3833; --pill-neutral-fg:#d8d2c6;
+    --tone-overdue-card:#3a2424; --tone-overdue-border:#4d2c2c;
+    --tone-soon-card:#3a2e1c;    --tone-soon-border:#4d3a22;
+    --tone-done-card:#233022;    --tone-done-border:#2c3d2b;
+    --tone-overdue-task:#4a2c2c; --tone-soon-task:#4a3a22; --tone-done-task:#2c3d2b;
+    --selected:#b8a890; --selected-fg:#1c1a18; --today-ring:#cdbda3;
+    --drop-line:#cdbda3;
+  }
+  *{box-sizing:border-box}
+  html,body{background:var(--bg)}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--text); padding:22px 22px 130px 22px; min-height:100vh;
+    transition: background .2s, color .2s;
+  }
+  select,button,input,textarea{font-family:inherit; font-size:14px; color:var(--text)}
 
-    --pill-overdue: #b94040;
-    --pill-soon: #b97525;
-    --pill-done: #4a8a4a;
-    --pill-neutral-bg: #3d3833;
-    --pill-neutral-fg: #d8d2c6;
+  /* topbar */
+  .topbar{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:14px; margin-bottom:8px}
+  .topbar .left{display:flex; align-items:center}
+  .topbar .center{display:flex; justify-content:center}
+  .topbar .right{display:flex; justify-content:flex-end; gap:6px}
+  .app-title{font-size:18px; font-weight:700; letter-spacing:.2px}
 
-    --tone-overdue-card: #3a2424;
-    --tone-overdue-border: #4d2c2c;
-    --tone-soon-card: #3a2e1c;
-    --tone-soon-border: #4d3a22;
-    --tone-done-card: #233022;
-    --tone-done-border: #2c3d2b;
+  .list-selector{position:relative}
+  .list-current{
+    width:280px; text-align:center; padding:9px 14px;
+    background:transparent; border:1px solid var(--border-soft);
+    border-radius:12px; font-size:14px; color:var(--text);
+    cursor:pointer; user-select:none; transition:background .15s;
+  }
+  .list-current:hover{background:var(--soft)}
 
-    --tone-overdue-task: #4a2c2c;
-    --tone-soon-task: #4a3a22;
-    --tone-done-task: #2c3d2b;
+  .btn-icon{
+    background:transparent; border:1px solid var(--border-soft); color:var(--muted);
+    cursor:pointer; padding:7px 11px; font-size:15px; border-radius:10px;
+    transition:background .15s;
+  }
+  .btn-icon:hover{background:var(--soft)}
 
-    --selected: #b8a890;
-    --selected-fg: #1c1a18;
-    --today-ring: #cdbda3;
+  /* sort bar */
+  .sortbar{
+    display:flex; justify-content:center; align-items:center;
+    gap:8px; margin:6px 0 22px;
+    color:var(--muted); font-size:12px;
   }
+  .sort-segments{
+    display:inline-flex; border:1px solid var(--border-soft);
+    border-radius:999px; overflow:hidden; padding:2px;
+  }
+  .sort-segments button{
+    background:transparent; border:none; color:var(--muted);
+    padding:4px 10px; cursor:pointer; border-radius:999px; font-size:12px;
+  }
+  .sort-segments button.active{background:var(--soft); color:var(--text)}
+  .sort-segments button:hover{color:var(--text)}
 
-  * { box-sizing: border-box; }
-  html, body { background: var(--bg); }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: var(--text);
-    padding: 22px 22px 110px 22px;
-    min-height: 100vh;
-    transition: background 0.2s, color 0.2s;
+  /* menu / ctx menu */
+  .menu,.ctx-menu{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    box-shadow:var(--shadow-md); padding:6px; display:flex; flex-direction:column;
+    min-width:200px;
   }
+  .menu.hidden,.ctx-menu.hidden{display:none}
+  .menu button,.ctx-menu button{
+    background:none; border:none; text-align:left; padding:8px 10px;
+    font-size:14px; color:var(--text); cursor:pointer; border-radius:6px;
+  }
+  .menu button:hover,.ctx-menu button:hover{background:var(--soft)}
+  .menu button:disabled{color:var(--muted); cursor:not-allowed}
+  .menu button.danger,.ctx-menu button.danger{color:#c75050}
+  .menu button.active{background:var(--soft)}
+  #listDropdown{position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%); z-index:110; min-width:280px}
+  .ctx-menu{position:fixed; z-index:200}
 
-  select, button, input, textarea {
-    font-family: inherit;
-    font-size: 14px;
-    color: var(--text);
+  /* subject card */
+  .subject{
+    background:var(--card); border:1px solid var(--border-soft); border-radius:14px;
+    margin-bottom:12px; overflow:hidden; box-shadow:var(--shadow-sm);
   }
+  .subject.has-overdue{background:var(--tone-overdue-card); border-color:var(--tone-overdue-border)}
+  .subject.has-soon   {background:var(--tone-soon-card);    border-color:var(--tone-soon-border)}
+  .subject.all-done   {background:var(--tone-done-card);    border-color:var(--tone-done-border)}
+  .subject.dragging{opacity:0.5}
+  .subject-header{display:flex; align-items:center; padding:12px 14px; gap:10px; cursor:pointer; user-select:none}
+  .arrow{display:inline-block; width:14px; text-align:center; transition:transform .15s; color:var(--muted)}
+  .arrow.open{transform:rotate(90deg)}
+  .subject-name{flex:1; font-weight:600}
+  .due-label{font-size:12px; color:var(--muted); margin-right:6px}
+  .subject-body{padding:0 14px 12px 30px}
 
-  /* ============================================================
-     Top bar
-     ============================================================ */
-  .topbar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 26px;
+  /* section card */
+  .section{
+    background:var(--card-soft); border:1px solid var(--border-soft); border-radius:12px;
+    margin:8px 0; overflow:hidden;
   }
-  .topbar .left { display: flex; align-items: center; }
-  .topbar .center { display: flex; justify-content: center; }
-  .topbar .right { display: flex; justify-content: flex-end; }
+  .section.dragging{opacity:0.5}
+  .section-header{display:flex; align-items:center; padding:9px 12px; gap:8px; cursor:pointer; user-select:none}
+  .section-name{flex:1; font-weight:500; font-size:14px}
+  .section-body{padding:0 10px 10px 24px}
 
-  .app-title {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-  }
+  /* tasks */
+  .task{background:var(--card-soft); border-radius:10px; padding:8px 10px; margin-top:8px; transition:opacity .35s ease}
+  .section .task{background:var(--card)}
+  .task.tone-overdue{background:var(--tone-overdue-task)}
+  .task.tone-soon   {background:var(--tone-soon-task)}
+  .task.tone-done   {background:var(--tone-done-task)}
+  .task.fading{opacity:0.25}
+  .task.dragging{opacity:0.4}
+  .task-row{display:flex; align-items:center; gap:10px}
+  .task-row input[type="checkbox"]{width:16px; height:16px; accent-color:var(--accent); cursor:pointer}
+  .task-title{flex:1; font-size:14px}
+  .task.tone-done .task-title{text-decoration:line-through; color:var(--muted)}
+  .task-arrow{cursor:pointer; color:var(--muted); user-select:none; padding:2px 6px; border-radius:6px}
+  .task-arrow:hover{background:var(--soft)}
 
-  .list-selector { position: relative; }
-  .list-current {
-    width: 280px;
-    text-align: center;
-    padding: 9px 14px;
-    background: transparent;
-    border: 1px solid var(--border-soft);
-    border-radius: 12px;
-    font-size: 14px;
-    color: var(--text);
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.15s;
-  }
-  .list-current:hover { background: var(--soft); }
+  /* pills */
+  .pill{display:inline-block; font-size:12px; padding:3px 9px; border-radius:999px; white-space:nowrap; font-weight:500}
+  .pill-neutral{background:var(--pill-neutral-bg); color:var(--pill-neutral-fg)}
+  .pill-overdue{background:var(--pill-overdue); color:#fff}
+  .pill-soon   {background:var(--pill-soon);    color:#fff}
+  .pill-done   {background:var(--pill-done);    color:#fff}
 
-  .btn-icon {
-    background: transparent;
-    border: 1px solid var(--border-soft);
-    color: var(--muted);
-    cursor: pointer;
-    padding: 7px 11px;
-    font-size: 15px;
-    border-radius: 10px;
-    transition: background 0.15s;
+  /* edit panels (in-card) */
+  .edit-panel{
+    margin:6px 14px 12px 30px; padding:14px;
+    background:var(--card); border:1px solid var(--border-soft); border-radius:10px;
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
   }
-  .btn-icon:hover { background: var(--soft); }
+  .section .edit-panel{margin:6px 10px 10px 24px}
+  .edit-panel .full{grid-column:1 / -1}
+  .edit-panel label{font-size:12px; color:var(--muted); display:block; margin-bottom:4px}
+  .edit-panel input,.edit-panel select,.edit-panel textarea{
+    width:100%; padding:8px 10px; border:1px solid var(--border);
+    border-radius:8px; background:var(--card); color:var(--text);
+  }
+  .edit-panel textarea{resize:vertical; min-height:60px}
+  .edit-panel .actions-row{grid-column:1/-1; display:flex; justify-content:space-between; gap:8px; margin-top:4px}
+  .edit-panel .actions-right{display:flex; gap:8px}
 
-  /* ============================================================
-     Menus / popovers (list dropdown, list ctx, subject ctx)
-     ============================================================ */
-  .menu, .ctx-menu {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: var(--shadow-md);
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    min-width: 200px;
+  /* show completed */
+  .show-completed{
+    margin-top:6px; font-size:12px; color:var(--muted);
+    cursor:pointer; padding:6px 8px; border-radius:6px; display:inline-block;
   }
-  .menu.hidden, .ctx-menu.hidden { display: none; }
-  .menu button, .ctx-menu button {
-    background: none;
-    border: none;
-    text-align: left;
-    padding: 8px 10px;
-    font-size: 14px;
-    color: var(--text);
-    cursor: pointer;
-    border-radius: 6px;
-  }
-  .menu button:hover, .ctx-menu button:hover { background: var(--soft); }
-  .menu button:disabled { color: var(--muted); cursor: not-allowed; }
-  .menu button.danger, .ctx-menu button.danger { color: #c75050; }
-  .menu button.active { background: var(--soft); }
+  .show-completed:hover{color:var(--text); background:var(--soft)}
 
-  /* List dropdown (under list selector) */
-  #listDropdown {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 110;
-    min-width: 280px;
-  }
-  /* Right-click menu near the cursor */
-  .ctx-menu {
-    position: fixed;
-    z-index: 200;
-    box-shadow: var(--shadow-md);
-  }
+  /* buttons */
+  .btn{background:var(--accent); color:#fff; border:none; padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:500}
+  .btn:hover{background:var(--accent-hover)}
+  .btn-soft{background:var(--soft); color:var(--text); border:none; padding:8px 14px; border-radius:10px; cursor:pointer}
+  .btn-soft:hover{background:var(--soft-hover)}
+  .btn-danger{background:var(--pill-overdue); color:#fff; border:none; padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:500}
+  .btn-danger:hover{filter:brightness(0.95)}
 
-  /* ============================================================
-     Subject card
-     ============================================================ */
-  .subject {
-    background: var(--card);
-    border: 1px solid var(--border-soft);
-    border-radius: 14px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
+  /* fab */
+  .fab{
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+    width:56px; height:56px; border-radius:50%;
+    background:var(--accent); color:#fff; font-size:28px;
+    border:none; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.18);
+    display:flex; align-items:center; justify-content:center; line-height:1;
+    z-index:100;
   }
-  .subject.has-overdue { background: var(--tone-overdue-card); border-color: var(--tone-overdue-border); }
-  .subject.has-soon    { background: var(--tone-soon-card);    border-color: var(--tone-soon-border); }
-  .subject.all-done    { background: var(--tone-done-card);    border-color: var(--tone-done-border); }
+  .fab:hover{background:var(--accent-hover)}
 
-  .subject-header {
-    display: flex;
-    align-items: center;
-    padding: 12px 14px;
-    gap: 10px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .arrow {
-    display: inline-block;
-    width: 14px;
-    text-align: center;
-    transition: transform 0.15s;
-    color: var(--muted);
-  }
-  .arrow.open { transform: rotate(90deg); }
-  .subject-name { flex: 1; font-weight: 600; }
-  .subject-body { padding: 0 14px 12px 30px; }
+  .empty{text-align:center; color:var(--muted); padding:30px 10px; font-size:14px}
 
-  /* ============================================================
-     Tasks
-     ============================================================ */
-  .task {
-    background: var(--card-soft);
-    border-radius: 10px;
-    padding: 8px 10px;
-    margin-top: 8px;
+  /* modal */
+  .overlay{position:fixed; inset:0; background:rgba(20,18,16,0.45); display:flex; align-items:center; justify-content:center; z-index:500}
+  .overlay.hidden{display:none}
+  .modal{
+    position:relative; background:var(--card); border-radius:14px;
+    padding:20px 22px; min-width:360px; max-width:90vw;
+    box-shadow:var(--shadow-lg); color:var(--text);
   }
-  .task.tone-overdue { background: var(--tone-overdue-task); }
-  .task.tone-soon    { background: var(--tone-soon-task); }
-  .task.tone-done    { background: var(--tone-done-task); }
+  .modal-title{font-size:16px; font-weight:600; margin-bottom:14px}
+  .modal-close{
+    position:absolute; top:10px; right:10px; width:28px; height:28px;
+    background:transparent; border:none; border-radius:8px; color:var(--muted);
+    cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{background:var(--soft)}
+  .modal-body{margin-bottom:16px}
+  .modal-body input[type="text"], .modal-body input[type="date"],
+  .modal-body select, .modal-body textarea{
+    width:100%; padding:9px 11px; border:1px solid var(--border);
+    border-radius:8px; background:var(--card); color:var(--text);
+  }
+  .modal-message{font-size:14px; color:var(--text); line-height:1.45}
+  .form-row{margin-bottom:12px}
+  .form-row:last-child{margin-bottom:0}
+  .form-row label{display:block; font-size:12px; color:var(--muted); margin-bottom:5px}
+  .modal-actions{display:flex; justify-content:flex-end; gap:8px}
 
-  .task-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .task-row input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
-  .task-title { flex: 1; font-size: 14px; }
-  .task.tone-done .task-title {
-    text-decoration: line-through;
-    color: var(--muted);
-  }
-  .task-arrow {
-    cursor: pointer;
-    color: var(--muted);
-    user-select: none;
-    padding: 2px 6px;
-    border-radius: 6px;
-  }
-  .task-arrow:hover { background: var(--soft); }
+  /* settings toggles */
+  .settings-row{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-soft)}
+  .settings-row:last-child{border-bottom:none}
+  .settings-row .label-block{display:flex; flex-direction:column}
+  .settings-row .label-block .small{font-size:12px; color:var(--muted); margin-top:2px}
+  .toggle{position:relative; width:40px; height:22px; flex-shrink:0}
+  .toggle input{opacity:0; width:0; height:0; position:absolute}
+  .toggle .slider{position:absolute; inset:0; background:var(--soft); border-radius:22px; cursor:pointer; transition:background .15s}
+  .toggle .slider::before{content:""; position:absolute; width:18px; height:18px; left:2px; top:2px; background:#fff; border-radius:50%; transition:.18s; box-shadow:0 1px 2px rgba(0,0,0,0.18)}
+  .toggle input:checked + .slider{background:var(--accent)}
+  .toggle input:checked + .slider::before{transform:translateX(18px)}
 
-  /* ============================================================
-     Pills
-     ============================================================ */
-  .pill {
-    display: inline-block;
-    font-size: 12px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    white-space: nowrap;
-    font-weight: 500;
+  /* calendar */
+  .cal-popup{
+    position:fixed; z-index:600; width:280px; background:var(--card);
+    border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-md);
+    padding:10px; color:var(--text);
   }
-  .pill-neutral { background: var(--pill-neutral-bg); color: var(--pill-neutral-fg); }
-  .pill-overdue { background: var(--pill-overdue); color: #fff; }
-  .pill-soon    { background: var(--pill-soon);    color: #fff; }
-  .pill-done    { background: var(--pill-done);    color: #fff; }
+  .cal-popup.hidden{display:none}
+  .cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+  .cal-title{font-weight:600; font-size:14px}
+  .cal-nav{background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:2px 8px; border-radius:6px}
+  .cal-nav:hover{background:var(--soft)}
+  .cal-weekdays{display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px}
+  .cal-weekdays div{text-align:center; font-size:11px; color:var(--muted); padding:4px 0}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px}
+  .cal-day{background:transparent; border:1px solid transparent; border-radius:8px; color:var(--text); padding:6px 0; font-size:13px; cursor:pointer; text-align:center}
+  .cal-day:hover{background:var(--soft)}
+  .cal-day.faded{color:var(--muted); opacity:0.5}
+  .cal-day.today{border-color:var(--today-ring)}
+  .cal-day.selected{background:var(--selected); color:var(--selected-fg); border-color:var(--selected)}
+  .cal-day.selected:hover{background:var(--accent-hover)}
+  .cal-clear{margin-top:8px; width:100%; background:transparent; border:1px dashed var(--border); color:var(--muted); border-radius:8px; padding:6px; cursor:pointer; font-size:12px}
+  .cal-clear:hover{background:var(--soft); color:var(--text)}
 
-  /* ============================================================
-     Task expanded panel
-     ============================================================ */
-  .task-details {
-    margin-top: 10px;
-    padding: 14px;
-    background: var(--card);
-    border-radius: 10px;
-    border: 1px solid var(--border-soft);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  /* drag-drop */
+  #dropLine{
+    position:fixed; z-index:700; height:3px; background:var(--drop-line);
+    border-radius:2px; pointer-events:none; transition:opacity .1s;
+    box-shadow:0 0 6px rgba(0,0,0,0.10);
   }
-  .task-details .full { grid-column: 1 / -1; }
-  .task-details label {
-    font-size: 12px;
-    color: var(--muted);
-    display: block;
-    margin-bottom: 4px;
-  }
-  .task-details input,
-  .task-details select,
-  .task-details textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card);
-    color: var(--text);
-  }
-  .task-details textarea { resize: vertical; min-height: 60px; }
-  .task-details .actions-row {
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 4px;
-  }
-  .task-details .actions-right { display: flex; gap: 8px; }
-
-  /* Buttons */
-  .btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .btn:hover { background: var(--accent-hover); }
-  .btn-soft {
-    background: var(--soft);
-    color: var(--text);
-    border: none;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  .btn-soft:hover { background: var(--soft-hover); }
-  .btn-danger {
-    background: var(--pill-overdue);
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .btn-danger:hover { filter: brightness(0.95); }
-
-  /* ============================================================
-     Floating action button
-     ============================================================ */
-  .fab {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 28px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
-  .fab:hover { background: var(--accent-hover); }
-
-  .empty {
-    text-align: center;
-    color: var(--muted);
-    padding: 30px 10px;
-    font-size: 14px;
-  }
-
-  /* ============================================================
-     Modal
-     ============================================================ */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(20, 18, 16, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 500;
-  }
-  .overlay.hidden { display: none; }
-  .modal {
-    position: relative;
-    background: var(--card);
-    border-radius: 14px;
-    padding: 20px 22px;
-    min-width: 360px;
-    max-width: 90vw;
-    box-shadow: var(--shadow-lg);
-    color: var(--text);
-  }
-  .modal-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 14px;
-  }
-  .modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 28px;
-    height: 28px;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-close:hover { background: var(--soft); }
-  .modal-body { margin-bottom: 16px; }
-  .modal-body input[type="text"],
-  .modal-body input[type="date"],
-  .modal-body select,
-  .modal-body textarea {
-    width: 100%;
-    padding: 9px 11px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card);
-    color: var(--text);
-  }
-  .modal-message {
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.45;
-  }
-  .form-row { margin-bottom: 12px; }
-  .form-row:last-child { margin-bottom: 0; }
-  .form-row label {
-    display: block;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 5px;
-  }
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-
-  /* Settings rows + toggle switch */
-  .settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .settings-row:last-child { border-bottom: none; }
-  .settings-row .label-block { display: flex; flex-direction: column; }
-  .settings-row .label-block .small {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-  .toggle {
-    position: relative;
-    width: 40px;
-    height: 22px;
-    flex-shrink: 0;
-  }
-  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-  .toggle .slider {
-    position: absolute;
-    inset: 0;
-    background: var(--soft);
-    border-radius: 22px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .toggle .slider::before {
-    content: "";
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    left: 2px;
-    top: 2px;
-    background: #fff;
-    border-radius: 50%;
-    transition: 0.18s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
-  }
-  .toggle input:checked + .slider { background: var(--accent); }
-  .toggle input:checked + .slider::before { transform: translateX(18px); }
-
-  /* ============================================================
-     Custom calendar popup
-     ============================================================ */
-  .cal-popup {
-    position: fixed;
-    z-index: 600;
-    width: 280px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
-    padding: 10px;
-    color: var(--text);
-  }
-  .cal-popup.hidden { display: none; }
-  .cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
-  }
-  .cal-title { font-weight: 600; font-size: 14px; }
-  .cal-nav {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 18px;
-    padding: 2px 8px;
-    border-radius: 6px;
-  }
-  .cal-nav:hover { background: var(--soft); }
-  .cal-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    margin-bottom: 4px;
-  }
-  .cal-weekdays div {
-    text-align: center;
-    font-size: 11px;
-    color: var(--muted);
-    padding: 4px 0;
-  }
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-  }
-  .cal-day {
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    color: var(--text);
-    padding: 6px 0;
-    font-size: 13px;
-    cursor: pointer;
-    text-align: center;
-  }
-  .cal-day:hover { background: var(--soft); }
-  .cal-day.faded { color: var(--muted); opacity: 0.5; }
-  .cal-day.today { border-color: var(--today-ring); }
-  .cal-day.selected {
-    background: var(--selected);
-    color: var(--selected-fg);
-    border-color: var(--selected);
-  }
-  .cal-day.selected:hover { background: var(--accent-hover); }
-  .cal-clear {
-    margin-top: 8px;
-    width: 100%;
-    background: transparent;
-    border: 1px dashed var(--border);
-    color: var(--muted);
-    border-radius: 8px;
-    padding: 6px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  .cal-clear:hover { background: var(--soft); color: var(--text); }
+  #dropLine.hidden{display:none}
+  .drag-target-highlight{outline:2px dashed var(--drop-line); outline-offset:-2px}
 </style>
 </head>
 <body>
@@ -598,7 +286,16 @@
     </div>
   </div>
   <div class="right">
+    <button id="searchBtn" class="btn-icon" title="Search">⌕</button>
     <button id="settingsBtn" class="btn-icon" title="Settings">⚙</button>
+  </div>
+</div>
+
+<div class="sortbar">
+  <span>Sort</span>
+  <div id="sortSegments" class="sort-segments">
+    <button data-sort="custom">Custom</button>
+    <button data-sort="due">Due date</button>
   </div>
 </div>
 
@@ -608,9 +305,19 @@
 
 <!-- Subject right-click menu -->
 <div id="ctxMenu" class="ctx-menu hidden">
+  <button data-act="add-section">Add Section</button>
   <button data-act="add-task">Add Task</button>
   <button data-act="rename">Edit Subject</button>
+  <button data-act="duplicate">Duplicate Subject</button>
   <button data-act="delete" class="danger">Delete Subject</button>
+</div>
+
+<!-- Section right-click menu -->
+<div id="sectionCtxMenu" class="ctx-menu hidden">
+  <button data-act="add-task">Add Task</button>
+  <button data-act="rename">Edit Section</button>
+  <button data-act="duplicate">Duplicate Section</button>
+  <button data-act="delete" class="danger">Delete Section</button>
 </div>
 
 <!-- List right-click menu -->
@@ -620,7 +327,7 @@
   <button data-act="delete" class="danger">Delete List</button>
 </div>
 
-<!-- Reusable input/confirm/settings modal -->
+<!-- Modal -->
 <div id="modalOverlay" class="overlay hidden">
   <div class="modal" id="modalBox">
     <button id="modalClose" class="modal-close" title="Close">×</button>
@@ -630,7 +337,7 @@
   </div>
 </div>
 
-<!-- Custom calendar -->
+<!-- Calendar -->
 <div id="calPopup" class="cal-popup hidden">
   <div class="cal-header">
     <button class="cal-nav" data-act="prev" type="button">‹</button>
@@ -644,9 +351,12 @@
   <button class="cal-clear" id="calClear" type="button">Clear date</button>
 </div>
 
+<!-- Drop line -->
+<div id="dropLine" class="hidden"></div>
+
 <script>
 // ============================================================
-// Storage
+// Storage / migrations
 // ============================================================
 const STORAGE_KEY = 'loopAppData';
 let data = load();
@@ -660,234 +370,288 @@ function load() {
   } catch (e) { console.error('load failed', e); }
   return { lists: [], currentListId: null, settings: null };
 }
-function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-  catch (e) { console.error('save failed', e); }
-}
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){ console.error(e); } }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function emptyDue(){ return { type: 'none', date: '', frequency: '', day: '' }; }
+
 function ensureSeed() {
   if (!data.lists) data.lists = [];
   if (data.lists.length === 0) {
-    const id = uid();
-    data.lists.push({ id, name: 'My List', subjects: [] });
-    data.currentListId = id;
+    data.lists.push({ id: uid(), name: 'My List', subjects: [], sortMode: 'custom' });
   }
+  data.lists.forEach(l => {
+    if (!l.sortMode) l.sortMode = 'custom';
+    if (!Array.isArray(l.subjects)) l.subjects = [];
+    l.subjects.forEach(migrateSubject);
+  });
   if (!data.currentListId || !data.lists.find(l => l.id === data.currentListId)) {
     data.currentListId = data.lists[0].id;
   }
-  if (!data.settings) {
-    data.settings = { darkMode: false, notifications: false, menuBarMode: false };
-  }
-  // Migrate subjects + tasks
-  data.lists.forEach(l => {
-    (l.subjects || []).forEach(s => {
-      if (s.resetSchedule === undefined) s.resetSchedule = 'None';
-      if (s.resetDay === undefined) s.resetDay = 'None';
-      if (s.lastResetDate === undefined) s.lastResetDate = '';
-      (s.tasks || []).forEach(t => {
-        if (t.manualDue === undefined) t.manualDue = t.due || '';
-        if (t.repeatSchedule === undefined) {
-          if (t.repeat && t.repeat !== 'None' && t.autoDueDay && t.autoDueDay !== 'None') {
-            const p = t.repeat === 'Weekly' ? 'weekly' : 'fortnightly';
-            t.repeatSchedule = p + ':' + t.autoDueDay;
-          } else {
-            t.repeatSchedule = 'none';
-          }
-        }
-        if (t.lastCompletedDate === undefined) t.lastCompletedDate = '';
-        if (t.notes === undefined) t.notes = '';
-      });
-    });
-  });
+  if (!data.settings) data.settings = { darkMode:false, notifications:false, menuBarMode:false };
   save();
 }
-function getList() {
-  return data.lists.find(l => l.id === data.currentListId);
+
+function migrateSubject(sub) {
+  if (sub.open === undefined) sub.open = true;
+  if (sub.showCompleted === undefined) sub.showCompleted = false;
+  if (!Array.isArray(sub.tasks)) sub.tasks = [];
+  if (!Array.isArray(sub.sections)) sub.sections = [];
+  if (sub.lastResetDate === undefined) sub.lastResetDate = '';
+  if (!sub.due || typeof sub.due !== 'object' || sub.due.type === undefined) {
+    let due = emptyDue();
+    if (sub.resetSchedule === 'Weekly' && sub.resetDay && sub.resetDay !== 'None') {
+      due = { type:'repeats', frequency:'weekly', day: sub.resetDay, date:'' };
+    } else if (sub.resetSchedule === 'Fortnightly' && sub.resetDay && sub.resetDay !== 'None') {
+      due = { type:'repeats', frequency:'fortnightly', day: sub.resetDay, date:'' };
+    }
+    sub.due = due;
+  }
+  sub.tasks.forEach(migrateTask);
+  sub.sections.forEach(migrateSection);
 }
+function migrateSection(sec) {
+  if (sec.open === undefined) sec.open = true;
+  if (sec.showCompleted === undefined) sec.showCompleted = false;
+  if (!Array.isArray(sec.tasks)) sec.tasks = [];
+  if (sec.lastResetDate === undefined) sec.lastResetDate = '';
+  if (!sec.due || typeof sec.due !== 'object' || sec.due.type === undefined) sec.due = emptyDue();
+  sec.tasks.forEach(migrateTask);
+}
+function migrateTask(t) {
+  if (t.title === undefined) t.title = '';
+  if (t.notes === undefined) t.notes = '';
+  if (t.done === undefined) t.done = false;
+  if (t.expanded === undefined) t.expanded = false;
+  if (t.lastCompletedDate === undefined) t.lastCompletedDate = '';
+  if (!t.due || typeof t.due !== 'object' || t.due.type === undefined) {
+    let due = emptyDue();
+    if (t.manualDue) {
+      due = { type:'once', date: t.manualDue, frequency:'', day:'' };
+    } else if (t.repeatSchedule && t.repeatSchedule !== 'none') {
+      const parts = String(t.repeatSchedule).split(':');
+      if (parts.length === 2) {
+        due = { type:'repeats', frequency: parts[0]==='weekly'?'weekly':'fortnightly', day: parts[1], date:'' };
+      }
+    }
+    t.due = due;
+  }
+}
+
+function getList(){ return data.lists.find(l => l.id === data.currentListId); }
 
 // ============================================================
 // Theme
 // ============================================================
 function applyTheme() {
-  if (data.settings && data.settings.darkMode) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-  }
+  if (data.settings && data.settings.darkMode) document.documentElement.setAttribute('data-theme','dark');
+  else document.documentElement.removeAttribute('data-theme');
 }
 
 // ============================================================
-// Date helpers (local time)
+// Date helpers
 // ============================================================
-const DAY_MS = 24 * 60 * 60 * 1000;
+const DAY_MS = 24*60*60*1000;
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-function startOfDay(d) {
-  const r = new Date(d); r.setHours(0,0,0,0); return r;
-}
-function todayLocal() { return startOfDay(new Date()); }
-function toISO(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
+function startOfDay(d){ const r=new Date(d); r.setHours(0,0,0,0); return r; }
+function todayLocal(){ return startOfDay(new Date()); }
+function toISO(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${dd}`;
 }
-function fromISO(s) {
-  if (!s) return null;
-  const p = s.split('-').map(Number);
-  if (p.length !== 3 || p.some(isNaN)) return null;
-  return new Date(p[0], p[1]-1, p[2]);
+function fromISO(s){ if(!s) return null; const p=s.split('-').map(Number); if(p.length!==3||p.some(isNaN)) return null; return new Date(p[0],p[1]-1,p[2]); }
+function isValidISO(s){ if(!s) return true; if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false; const d=fromISO(s); if(!d) return false; return toISO(d)===s; }
+function nextWeekday(idx, from, minDays=0){
+  const start=startOfDay(from); let diff=idx-start.getDay();
+  while(diff<minDays) diff+=7;
+  const r=new Date(start); r.setDate(start.getDate()+diff); return r;
 }
-function isValidISO(s) {
-  if (!s) return true; // empty allowed
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
-  const d = fromISO(s);
-  if (!d) return false;
-  return toISO(d) === s; // round-trip check
+function mostRecentPastWeekday(idx, from){
+  const start=startOfDay(from); let diff=start.getDay()-idx;
+  if(diff<0) diff+=7;
+  const r=new Date(start); r.setDate(start.getDate()-diff); return r;
 }
-function nextWeekday(idx, from, minDays = 0) {
-  const start = startOfDay(from);
-  let diff = idx - start.getDay();
-  while (diff < minDays) diff += 7;
-  const r = new Date(start); r.setDate(start.getDate()+diff); return r;
-}
-function mostRecentPastWeekday(idx, from) {
-  const start = startOfDay(from);
-  let diff = start.getDay() - idx;
-  if (diff < 0) diff += 7;
-  const r = new Date(start); r.setDate(start.getDate()-diff); return r;
-}
-function formatDue(iso) {
-  const d = fromISO(iso); if (!d) return '';
-  const today = todayLocal();
-  const diff = Math.round((startOfDay(d) - today) / DAY_MS);
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Tomorrow';
-  if (diff === -1) return 'Yesterday';
-  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+function formatDue(iso){
+  const d=fromISO(iso); if(!d) return '';
+  const today=todayLocal();
+  const diff=Math.round((startOfDay(d)-today)/DAY_MS);
+  if(diff===0) return 'Today';
+  if(diff===1) return 'Tomorrow';
+  if(diff===-1) return 'Yesterday';
+  return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
 }
 
 // ============================================================
-// Repeat Schedule helpers
+// Due / repeat computation
 // ============================================================
-const REPEAT_OPTIONS = [
-  { value: 'none',                label: "Doesn't repeat" },
-  { value: 'weekly:Monday',       label: 'Every week on Monday' },
-  { value: 'weekly:Tuesday',      label: 'Every week on Tuesday' },
-  { value: 'weekly:Wednesday',    label: 'Every week on Wednesday' },
-  { value: 'weekly:Thursday',     label: 'Every week on Thursday' },
-  { value: 'weekly:Friday',       label: 'Every week on Friday' },
-  { value: 'weekly:Saturday',     label: 'Every week on Saturday' },
-  { value: 'weekly:Sunday',       label: 'Every week on Sunday' },
-  { value: 'fortnightly:Monday',  label: 'Every 2 weeks on Monday' },
-  { value: 'fortnightly:Tuesday', label: 'Every 2 weeks on Tuesday' },
-  { value: 'fortnightly:Wednesday',label:'Every 2 weeks on Wednesday' },
-  { value: 'fortnightly:Thursday',label: 'Every 2 weeks on Thursday' },
-  { value: 'fortnightly:Friday',  label: 'Every 2 weeks on Friday' },
-  { value: 'fortnightly:Saturday',label: 'Every 2 weeks on Saturday' },
-  { value: 'fortnightly:Sunday',  label: 'Every 2 weeks on Sunday' }
-];
-
-function computeAutoDue(task) {
-  const r = task.repeatSchedule;
-  if (!r || r === 'none') return '';
-  const [kind, day] = r.split(':');
-  const idx = DAY_NAMES.indexOf(day);
-  if (idx < 0) return '';
-  const today = todayLocal();
-  if (kind === 'weekly') return toISO(nextWeekday(idx, today, 0));
-  if (kind === 'fortnightly') {
-    if (task.lastCompletedDate) {
-      const base = fromISO(task.lastCompletedDate);
-      if (base) {
-        base.setDate(base.getDate()+14);
-        return toISO(nextWeekday(idx, base, 0));
+function computeDueISO(item){
+  if(!item || !item.due) return '';
+  const d = item.due;
+  if (d.type === 'none') return '';
+  if (d.type === 'once') return d.date || '';
+  if (d.type === 'repeats') {
+    if (d.frequency === 'daily') return toISO(todayLocal());
+    if (d.frequency === 'weekly' || d.frequency === 'fortnightly') {
+      const idx = DAY_NAMES.indexOf(d.day);
+      if (idx < 0) return '';
+      const today = todayLocal();
+      if (d.frequency === 'weekly') return toISO(nextWeekday(idx, today, 0));
+      // fortnightly anchored from lastCompletedDate (task) or lastResetDate (subject/section)
+      const anchorISO = item.lastCompletedDate || item.lastResetDate || '';
+      if (anchorISO) {
+        const base = fromISO(anchorISO);
+        if (base) {
+          base.setDate(base.getDate() + 14);
+          return toISO(nextWeekday(idx, base, 0));
+        }
       }
+      return toISO(nextWeekday(idx, today, 0));
     }
-    return toISO(nextWeekday(idx, today, 0));
+    return ''; // 'custom' placeholder
   }
   return '';
 }
-function taskEffectiveDue(task) {
-  if (task.manualDue) return task.manualDue;
-  return computeAutoDue(task);
+
+function effectiveTaskDue(task, sub, sec){
+  const own = computeDueISO(task);
+  if (own) return own;
+  if (sec) { const sd = computeDueISO(sec); if (sd) return sd; }
+  if (sub) { const sd = computeDueISO(sub); if (sd) return sd; }
+  return '';
+}
+
+// Whether the task has its OWN due (overrides ancestor)
+function taskHasOwnDue(task){ return task.due && task.due.type !== 'none'; }
+
+function dueLabelText(item){
+  if (!item || !item.due) return '';
+  const d = item.due;
+  if (d.type === 'once' && d.date) return 'Due ' + formatDue(d.date);
+  if (d.type === 'repeats') {
+    if (d.frequency === 'daily') return 'Repeats daily';
+    if (d.frequency === 'weekly') return 'Repeats weekly on ' + (d.day || '—');
+    if (d.frequency === 'fortnightly') return 'Repeats fortnightly on ' + (d.day || '—');
+    if (d.frequency === 'custom') return 'Custom repeat';
+  }
+  return '';
 }
 
 // ============================================================
 // Status
 // ============================================================
-function statusFor(task) {
-  if (task.done) return 'done';
-  const due = taskEffectiveDue(task);
+function statusFromDue(due, done){
+  if (done) return 'done';
   if (!due) return 'normal';
-  const d = fromISO(due); if (!d) return 'normal';
-  const today = todayLocal();
-  const diff = Math.round((startOfDay(d) - today) / DAY_MS);
+  const d=fromISO(due); if(!d) return 'normal';
+  const today=todayLocal();
+  const diff=Math.round((startOfDay(d)-today)/DAY_MS);
   if (diff < 0) return 'overdue';
   if (diff <= 3) return 'soon';
   return 'normal';
 }
-function subjectStatus(sub) {
-  if (!sub.tasks || sub.tasks.length === 0) return { kind: 'normal' };
-  let overdue = 0, soon = 0, done = 0;
-  sub.tasks.forEach(t => {
-    const s = statusFor(t);
+function statusForTask(task, sub, sec){
+  return statusFromDue(effectiveTaskDue(task, sub, sec), task.done);
+}
+function summaryStatus(tasks, sub, sec){
+  if (!tasks || tasks.length === 0) return { kind: 'normal' };
+  const visible = tasks; // all tasks count for summary, completed too
+  let overdue=0, soon=0, done=0;
+  visible.forEach(t => {
+    const s = statusForTask(t, sub, sec);
     if (s === 'overdue') overdue++;
     else if (s === 'soon') soon++;
     if (t.done) done++;
   });
-  if (overdue > 0) return { kind: 'overdue', count: overdue };
-  if (soon > 0)    return { kind: 'soon',    count: soon };
-  if (done === sub.tasks.length) return { kind: 'done' };
-  return { kind: 'normal' };
+  if (overdue > 0) return { kind:'overdue', count: overdue };
+  if (soon > 0)    return { kind:'soon',    count: soon };
+  if (done === visible.length) return { kind:'done' };
+  return { kind:'normal' };
 }
 
 // ============================================================
-// Resets
+// Reset cycles
 // ============================================================
-function checkTaskResets(list) {
+function cycleDays(due){
+  if (!due || due.type !== 'repeats') return 0;
+  if (due.frequency === 'daily') return 1;
+  if (due.frequency === 'weekly') return 7;
+  if (due.frequency === 'fortnightly') return 14;
+  return 0;
+}
+function pastAnchor(due, today){
+  if (due.frequency === 'daily') return toISO(today);
+  const idx = DAY_NAMES.indexOf(due.day);
+  if (idx < 0) return toISO(today);
+  return toISO(mostRecentPastWeekday(idx, today));
+}
+
+function checkResets(list){
   const today = todayLocal();
   list.subjects.forEach(sub => {
-    sub.tasks.forEach(t => {
+    // Subject-level repeat cycle resets inherited tasks
+    if (sub.due && sub.due.type === 'repeats') {
+      const cd = cycleDays(sub.due);
+      if (cd > 0) {
+        if (!sub.lastResetDate) sub.lastResetDate = pastAnchor(sub.due, today);
+        else {
+          const last = fromISO(sub.lastResetDate);
+          if (last) {
+            let next = new Date(startOfDay(last));
+            next.setDate(next.getDate() + cd);
+            if (today >= next) {
+              while (true) {
+                const f = new Date(next); f.setDate(f.getDate()+cd);
+                if (today >= f) next = f; else break;
+              }
+              // Reset inheriting tasks (no own due)
+              sub.tasks.forEach(t => { if (!taskHasOwnDue(t)) { t.done=false; t.lastCompletedDate=''; } });
+              sub.sections.forEach(sec => {
+                if (sec.due && sec.due.type !== 'none') return; // section overrides subject
+                sec.tasks.forEach(t => { if (!taskHasOwnDue(t)) { t.done=false; t.lastCompletedDate=''; } });
+              });
+              sub.lastResetDate = toISO(next);
+            }
+          }
+        }
+      }
+    }
+    // Section-level repeat cycle resets inherited section tasks
+    sub.sections.forEach(sec => {
+      if (sec.due && sec.due.type === 'repeats') {
+        const cd = cycleDays(sec.due);
+        if (cd > 0) {
+          if (!sec.lastResetDate) sec.lastResetDate = pastAnchor(sec.due, today);
+          else {
+            const last = fromISO(sec.lastResetDate);
+            if (last) {
+              let next = new Date(startOfDay(last));
+              next.setDate(next.getDate()+cd);
+              if (today >= next) {
+                while (true) {
+                  const f = new Date(next); f.setDate(f.getDate()+cd);
+                  if (today >= f) next = f; else break;
+                }
+                sec.tasks.forEach(t => { if (!taskHasOwnDue(t)) { t.done=false; t.lastCompletedDate=''; } });
+                sec.lastResetDate = toISO(next);
+              }
+            }
+          }
+        }
+      }
+    });
+    // Task-level: own repeating, when cycle elapses since completion
+    const allTasks = [...sub.tasks, ...sub.sections.flatMap(s => s.tasks)];
+    allTasks.forEach(t => {
       if (!t.done) return;
-      if (!t.repeatSchedule || t.repeatSchedule === 'none') return;
-      if (!t.lastCompletedDate) return;
+      if (!t.due || t.due.type !== 'repeats') return;
+      const cd = cycleDays(t.due);
+      if (cd <= 0 || !t.lastCompletedDate) return;
       const last = fromISO(t.lastCompletedDate); if (!last) return;
-      const cycleDays = t.repeatSchedule.startsWith('weekly') ? 7 : 14;
-      if ((today - startOfDay(last)) / DAY_MS >= cycleDays) {
+      if ((today - startOfDay(last)) / DAY_MS >= cd) {
         t.done = false; t.lastCompletedDate = '';
       }
     });
-  });
-}
-function checkSubjectResets(list) {
-  const today = todayLocal();
-  list.subjects.forEach(sub => {
-    if (!sub.resetSchedule || sub.resetSchedule === 'None') return;
-    if (!sub.resetDay || sub.resetDay === 'None') return;
-    const idx = DAY_NAMES.indexOf(sub.resetDay);
-    if (idx < 0) return;
-    if (!sub.lastResetDate) {
-      sub.lastResetDate = toISO(mostRecentPastWeekday(idx, today));
-      return;
-    }
-    const last = fromISO(sub.lastResetDate);
-    if (!last) { sub.lastResetDate = toISO(mostRecentPastWeekday(idx, today)); return; }
-    const cycleDays = sub.resetSchedule === 'Weekly' ? 7 : 14;
-    let next = new Date(startOfDay(last));
-    next.setDate(next.getDate()+cycleDays);
-    if (today >= next) {
-      while (true) {
-        const further = new Date(next);
-        further.setDate(further.getDate()+cycleDays);
-        if (today >= further) next = further; else break;
-      }
-      sub.tasks.forEach(t => { t.done = false; t.lastCompletedDate = ''; });
-      sub.lastResetDate = toISO(next);
-    }
   });
 }
 
@@ -899,320 +663,185 @@ const modalTitleEl = document.getElementById('modalTitle');
 const modalBodyEl = document.getElementById('modalBody');
 const modalActionsEl = document.getElementById('modalActions');
 const modalCloseBtn = document.getElementById('modalClose');
+let modalState = null;
 
-let modalState = null; // { onOk, onCancel, mode }
-
-function closeModal() {
+function closeModal(){
   overlayEl.classList.add('hidden');
   modalBodyEl.innerHTML = '';
   modalActionsEl.innerHTML = '';
   modalState = null;
 }
-function isModalOpen() { return !overlayEl.classList.contains('hidden'); }
+function isModalOpen(){ return !overlayEl.classList.contains('hidden'); }
 
-function setupBasicActions(okLabel, cancelLabel, onOk, onCancel, danger) {
+function setupActions(okLabel, cancelLabel, onOk, onCancel, danger){
   modalActionsEl.innerHTML = '';
   if (cancelLabel) {
     const c = document.createElement('button');
-    c.className = 'btn-soft';
-    c.textContent = cancelLabel;
+    c.className = 'btn-soft'; c.textContent = cancelLabel;
     c.addEventListener('click', onCancel);
     modalActionsEl.appendChild(c);
   }
   const ok = document.createElement('button');
-  ok.className = danger ? 'btn-danger' : 'btn';
-  ok.textContent = okLabel;
+  ok.className = danger ? 'btn-danger' : 'btn'; ok.textContent = okLabel;
   ok.addEventListener('click', onOk);
   modalActionsEl.appendChild(ok);
   return ok;
 }
 
-function openInputModal({ title, placeholder, initial, okLabel, onSave }) {
+function openInputModal({ title, placeholder, initial, okLabel, onSave }){
   modalTitleEl.textContent = title;
   modalBodyEl.innerHTML = '';
   const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = placeholder || '';
-  input.value = initial || '';
+  input.type = 'text'; input.placeholder = placeholder || ''; input.value = initial || '';
   modalBodyEl.appendChild(input);
-
-  const handleOk = () => {
-    const v = input.value.trim();
-    if (!v) return;
-    closeModal();
-    onSave(v);
-  };
+  const handleOk = () => { const v = input.value.trim(); if (!v) return; closeModal(); onSave(v); };
   const handleCancel = () => closeModal();
-  setupBasicActions(okLabel || 'Save', 'Cancel', handleOk, handleCancel);
+  setupActions(okLabel || 'Save', 'Cancel', handleOk, handleCancel);
   modalState = { onOk: handleOk, onCancel: handleCancel };
-
   overlayEl.classList.remove('hidden');
-  setTimeout(() => { input.focus(); input.select(); }, 0);
+  setTimeout(()=>{ input.focus(); input.select(); }, 0);
 }
 
-function openConfirmModal({ title, message, okLabel, danger, onConfirm }) {
+function openConfirmModal({ title, message, okLabel, danger, onConfirm }){
   modalTitleEl.textContent = title;
   modalBodyEl.innerHTML = '';
-  const p = document.createElement('div');
-  p.className = 'modal-message';
-  p.textContent = message || '';
+  const p = document.createElement('div'); p.className = 'modal-message'; p.textContent = message || '';
   modalBodyEl.appendChild(p);
-
   const handleOk = () => { closeModal(); onConfirm(); };
   const handleCancel = () => closeModal();
-  const okBtn = setupBasicActions(okLabel || 'OK', 'Cancel', handleOk, handleCancel, danger);
+  const okBtn = setupActions(okLabel || 'OK', 'Cancel', handleOk, handleCancel, danger);
   modalState = { onOk: handleOk, onCancel: handleCancel };
-
   overlayEl.classList.remove('hidden');
-  setTimeout(() => okBtn.focus(), 0);
+  setTimeout(()=>okBtn.focus(), 0);
 }
 
-function openSubjectSettingsModal(sub) {
-  modalTitleEl.textContent = 'Subject Settings';
-  modalBodyEl.innerHTML = `
-    <div class="form-row">
-      <label>Subject name</label>
-      <input type="text" data-f="name" placeholder="Subject name" />
-    </div>
-    <div class="form-row">
-      <label>Reset Schedule</label>
-      <select data-f="resetSchedule">
-        <option>None</option><option>Weekly</option><option>Fortnightly</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <label>Reset Day</label>
-      <select data-f="resetDay">
-        <option>None</option><option>Monday</option><option>Tuesday</option>
-        <option>Wednesday</option><option>Thursday</option><option>Friday</option>
-        <option>Saturday</option><option>Sunday</option>
-      </select>
-    </div>
-  `;
-  const nameI = modalBodyEl.querySelector('[data-f="name"]');
-  const rsI = modalBodyEl.querySelector('[data-f="resetSchedule"]');
-  const rdI = modalBodyEl.querySelector('[data-f="resetDay"]');
-  nameI.value = sub.name || '';
-  rsI.value = sub.resetSchedule || 'None';
-  rdI.value = sub.resetDay || 'None';
-
-  const handleOk = () => {
-    const name = nameI.value.trim();
-    if (!name) return;
-    const newRS = rsI.value, newRD = rdI.value;
-    const changed = sub.resetSchedule !== newRS || sub.resetDay !== newRD;
-    sub.name = name;
-    sub.resetSchedule = newRS;
-    sub.resetDay = newRD;
-    if (changed) sub.lastResetDate = '';
-    closeModal();
-    save(); render();
-  };
-  const handleCancel = () => closeModal();
-  setupBasicActions('Done', 'Cancel', handleOk, handleCancel);
-  modalState = { onOk: handleOk, onCancel: handleCancel };
-
+function openInfoModal(title, message){
+  modalTitleEl.textContent = title;
+  modalBodyEl.innerHTML = '';
+  const p = document.createElement('div'); p.className='modal-message'; p.textContent = message;
+  modalBodyEl.appendChild(p);
+  const close = () => closeModal();
+  setupActions('OK', null, close, close);
+  modalState = { onOk: close, onCancel: close };
   overlayEl.classList.remove('hidden');
-  setTimeout(() => { nameI.focus(); nameI.select(); }, 0);
 }
 
-function openSettingsModal() {
+function openSettingsModal(){
   modalTitleEl.textContent = 'Settings';
   modalBodyEl.innerHTML = `
     <div class="settings-row">
-      <div class="label-block">
-        <span>Dark Mode</span>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" data-f="darkMode" />
-        <span class="slider"></span>
-      </label>
+      <div class="label-block"><span>Dark Mode</span></div>
+      <label class="toggle"><input type="checkbox" data-f="darkMode" /><span class="slider"></span></label>
     </div>
     <div class="settings-row">
-      <div class="label-block">
-        <span>Notifications</span>
-        <span class="small">Coming soon</span>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" data-f="notifications" />
-        <span class="slider"></span>
-      </label>
+      <div class="label-block"><span>Notifications</span><span class="small">Coming soon</span></div>
+      <label class="toggle"><input type="checkbox" data-f="notifications" /><span class="slider"></span></label>
     </div>
     <div class="settings-row">
-      <div class="label-block">
-        <span>Menu Bar Mode</span>
-        <span class="small">Coming soon</span>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" data-f="menuBarMode" />
-        <span class="slider"></span>
-      </label>
-    </div>
-  `;
+      <div class="label-block"><span>Menu Bar Mode</span><span class="small">Coming soon</span></div>
+      <label class="toggle"><input type="checkbox" data-f="menuBarMode" /><span class="slider"></span></label>
+    </div>`;
   modalActionsEl.innerHTML = '';
-
   const dm = modalBodyEl.querySelector('[data-f="darkMode"]');
   const nf = modalBodyEl.querySelector('[data-f="notifications"]');
   const mb = modalBodyEl.querySelector('[data-f="menuBarMode"]');
   dm.checked = !!data.settings.darkMode;
   nf.checked = !!data.settings.notifications;
   mb.checked = !!data.settings.menuBarMode;
-
-  // Auto-save on toggle change
-  dm.addEventListener('change', () => {
-    data.settings.darkMode = dm.checked;
-    save(); applyTheme();
-  });
-  nf.addEventListener('change', () => {
-    data.settings.notifications = nf.checked;
-    save();
-  });
-  mb.addEventListener('change', () => {
-    data.settings.menuBarMode = mb.checked;
-    save();
-  });
-
+  dm.addEventListener('change', () => { data.settings.darkMode = dm.checked; save(); applyTheme(); });
+  nf.addEventListener('change', () => { data.settings.notifications = nf.checked; save(); });
+  mb.addEventListener('change', () => { data.settings.menuBarMode = mb.checked; save(); });
   modalState = { onOk: closeModal, onCancel: closeModal, isSettings: true };
   overlayEl.classList.remove('hidden');
 }
 
 modalCloseBtn.addEventListener('click', () => {
-  if (modalState && modalState.onCancel) modalState.onCancel();
-  else closeModal();
+  if (modalState && modalState.onCancel) modalState.onCancel(); else closeModal();
 });
 overlayEl.addEventListener('click', (e) => {
   if (e.target === overlayEl) {
-    if (modalState && modalState.onCancel) modalState.onCancel();
-    else closeModal();
+    if (modalState && modalState.onCancel) modalState.onCancel(); else closeModal();
   }
 });
 
 // ============================================================
-// Custom calendar popup
+// Calendar popup
 // ============================================================
 const calPopup = document.getElementById('calPopup');
 const calTitle = document.getElementById('calTitle');
 const calGrid = document.getElementById('calGrid');
 const calClear = document.getElementById('calClear');
-let calMonth = null; // { year, month0 }
+let calMonth = null;
 let calSelectedISO = '';
 let calOnSelect = null;
 let activeCalInput = null;
 
-function openCalendar(input, onSelect) {
-  // close other open menus
-  document.getElementById('listDropdown').classList.add('hidden');
-  document.getElementById('listCtxMenu').classList.add('hidden');
-  document.getElementById('ctxMenu').classList.add('hidden');
-
+function isCalOpen(){ return !calPopup.classList.contains('hidden'); }
+function openCalendar(input, onSelect){
+  hideListDropdown(); hideListCtxMenu(); hideSubjectCtxMenu(); hideSectionCtxMenu();
   activeCalInput = input;
   const initialISO = input.value && isValidISO(input.value) ? input.value : '';
   const base = initialISO ? fromISO(initialISO) : new Date();
   calMonth = { year: base.getFullYear(), month: base.getMonth() };
   calSelectedISO = initialISO;
-  calOnSelect = (iso) => {
-    if (onSelect) onSelect(iso);
-    closeCalendar();
-  };
-
-  // Position
+  calOnSelect = (iso) => { onSelect && onSelect(iso); closeCalendar(); };
   const rect = input.getBoundingClientRect();
-  let left = rect.left;
-  let top = rect.bottom + 4;
-  // Clamp horizontally
-  const width = 280;
+  let left = rect.left, top = rect.bottom + 4, width = 280;
   if (left + width > window.innerWidth - 8) left = window.innerWidth - width - 8;
   if (left < 8) left = 8;
-  // Vertical fallback above
   if (top + 320 > window.innerHeight) top = rect.top - 326;
   calPopup.style.left = left + 'px';
   calPopup.style.top = top + 'px';
-
   renderCalendar();
   calPopup.classList.remove('hidden');
 }
-function closeCalendar() {
-  calPopup.classList.add('hidden');
-  calOnSelect = null;
-  activeCalInput = null;
+function closeCalendar(){
+  calPopup.classList.add('hidden'); calOnSelect = null; activeCalInput = null;
 }
-function isCalOpen() { return !calPopup.classList.contains('hidden'); }
-
-function renderCalendar() {
+function renderCalendar(){
   const { year, month } = calMonth;
   calTitle.textContent = MONTH_NAMES[month] + ' ' + year;
-
   calGrid.innerHTML = '';
-  // First-day-of-month, weeks start Monday
   const first = new Date(year, month, 1);
-  const dow = first.getDay(); // 0=Sun
+  const dow = first.getDay();
   const startOffset = (dow === 0) ? 6 : dow - 1;
   const start = new Date(year, month, 1 - startOffset);
   const todayISO = toISO(new Date());
-
   for (let i = 0; i < 42; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
+    const d = new Date(start); d.setDate(start.getDate() + i);
     const cell = document.createElement('button');
-    cell.type = 'button';
-    cell.className = 'cal-day';
-    cell.textContent = String(d.getDate());
-    const iso = toISO(d);
-    cell.dataset.iso = iso;
+    cell.type = 'button'; cell.className = 'cal-day'; cell.textContent = String(d.getDate());
+    const iso = toISO(d); cell.dataset.iso = iso;
     if (d.getMonth() !== month) cell.classList.add('faded');
     if (iso === todayISO) cell.classList.add('today');
     if (iso === calSelectedISO) cell.classList.add('selected');
-    cell.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (calOnSelect) calOnSelect(iso);
-    });
+    cell.addEventListener('click', (e) => { e.stopPropagation(); calOnSelect && calOnSelect(iso); });
     calGrid.appendChild(cell);
   }
 }
-
-calPopup.addEventListener('mousedown', (e) => {
-  // Keep focus on the date input so blur doesn't fire while picking
-  if (e.target !== activeCalInput) e.preventDefault();
-});
+calPopup.addEventListener('mousedown', (e) => { if (e.target !== activeCalInput) e.preventDefault(); });
 calPopup.querySelector('[data-act="prev"]').addEventListener('click', (e) => {
-  e.stopPropagation();
-  calMonth.month--;
-  if (calMonth.month < 0) { calMonth.month = 11; calMonth.year--; }
-  renderCalendar();
+  e.stopPropagation(); calMonth.month--; if (calMonth.month < 0) { calMonth.month = 11; calMonth.year--; } renderCalendar();
 });
 calPopup.querySelector('[data-act="next"]').addEventListener('click', (e) => {
-  e.stopPropagation();
-  calMonth.month++;
-  if (calMonth.month > 11) { calMonth.month = 0; calMonth.year++; }
-  renderCalendar();
+  e.stopPropagation(); calMonth.month++; if (calMonth.month > 11) { calMonth.month = 0; calMonth.year++; } renderCalendar();
 });
-calClear.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (calOnSelect) calOnSelect('');
-});
+calClear.addEventListener('click', (e) => { e.stopPropagation(); calOnSelect && calOnSelect(''); });
 
 // ============================================================
 // Date input helper
 // ============================================================
-function makeDateInput(initialISO, onCommit) {
-  // onCommit(iso) is called on blur, Enter, or calendar pick.
+function makeDateInput(initialISO, onCommit){
   const wrap = document.createElement('div');
   wrap.style.position = 'relative';
   const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = 'YYYY-MM-DD';
-  input.value = initialISO || '';
-  input.autocomplete = 'off';
+  input.type = 'text'; input.placeholder = 'YYYY-MM-DD';
+  input.value = initialISO || ''; input.autocomplete = 'off';
   wrap.appendChild(input);
-
   const open = () => {
     if (isCalOpen() && activeCalInput === input) return;
-    openCalendar(input, (iso) => {
-      input.value = iso;
-      onCommit(iso);
-    });
+    openCalendar(input, (iso) => { input.value = iso; onCommit(iso); });
   };
-
   input.addEventListener('focus', open);
   input.addEventListener('click', (e) => { e.stopPropagation(); open(); });
   input.addEventListener('blur', () => {
@@ -1235,112 +864,584 @@ function makeDateInput(initialISO, onCommit) {
 }
 
 // ============================================================
+// Drag and drop
+// ============================================================
+const dropLine = document.getElementById('dropLine');
+let dragInfo = null; // { kind, ids, srcEl }
+
+function startDrag(e, info, el){
+  dragInfo = { ...info, srcEl: el };
+  el.classList.add('dragging');
+  try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', JSON.stringify(info)); } catch {}
+}
+function endDrag(){
+  if (dragInfo && dragInfo.srcEl) dragInfo.srcEl.classList.remove('dragging');
+  dragInfo = null;
+  hideDropLine();
+  document.querySelectorAll('.drag-target-highlight').forEach(el => el.classList.remove('drag-target-highlight'));
+}
+function showDropLine(rect, above){
+  dropLine.classList.remove('hidden');
+  dropLine.style.left = rect.left + 'px';
+  dropLine.style.width = rect.width + 'px';
+  dropLine.style.top = (above ? rect.top - 2 : rect.bottom - 1) + 'px';
+}
+function hideDropLine(){ dropLine.classList.add('hidden'); }
+
+// Locate a task in the current list by id; returns { task, parent: subjects.tasks or section.tasks, sub, sec }
+function findTask(taskId){
+  const list = getList(); if (!list) return null;
+  for (const sub of list.subjects) {
+    const i = sub.tasks.findIndex(t => t.id === taskId);
+    if (i >= 0) return { task: sub.tasks[i], parent: sub.tasks, idx: i, sub, sec: null };
+    for (const sec of sub.sections) {
+      const j = sec.tasks.findIndex(t => t.id === taskId);
+      if (j >= 0) return { task: sec.tasks[j], parent: sec.tasks, idx: j, sub, sec };
+    }
+  }
+  return null;
+}
+function findSection(sectionId){
+  const list = getList(); if (!list) return null;
+  for (const sub of list.subjects) {
+    const i = sub.sections.findIndex(s => s.id === sectionId);
+    if (i >= 0) return { section: sub.sections[i], parent: sub.sections, idx: i, sub };
+  }
+  return null;
+}
+function findSubject(subjectId){
+  const list = getList(); if (!list) return null;
+  const i = list.subjects.findIndex(s => s.id === subjectId);
+  if (i >= 0) return { subject: list.subjects[i], parent: list.subjects, idx: i };
+  return null;
+}
+
+// ============================================================
 // Render
 // ============================================================
 const subjectsEl = document.getElementById('subjects');
 const listCurrentEl = document.getElementById('listCurrent');
 const listDropdownEl = document.getElementById('listDropdown');
 
-function render() {
-  // List selector text
+function sortByDue(items, getEffDue){
+  return [...items].sort((a,b) => {
+    // status weight
+    const da = getEffDue(a), db = getEffDue(b);
+    const sa = statusWeight(da, a), sb = statusWeight(db, b);
+    if (sa !== sb) return sa - sb;
+    if (!da && !db) return 0;
+    if (!da) return 1; if (!db) return -1;
+    return da < db ? -1 : (da > db ? 1 : 0);
+  });
+}
+function statusWeight(due, item){
+  // 0 overdue, 1 today, 2 soon, 3 future, 4 none, 5 done
+  if (item.done) return 5;
+  if (!due) return 4;
+  const d=fromISO(due); if(!d) return 4;
+  const today=todayLocal();
+  const diff=Math.round((startOfDay(d)-today)/DAY_MS);
+  if (diff < 0) return 0;
+  if (diff === 0) return 1;
+  if (diff <= 3) return 2;
+  return 3;
+}
+
+function render(){
   const list = getList();
   listCurrentEl.textContent = list ? list.name : '—';
 
-  // Subjects
+  // Sort buttons
+  const segs = document.querySelectorAll('#sortSegments button');
+  segs.forEach(b => b.classList.toggle('active', b.dataset.sort === (list ? list.sortMode : 'custom')));
+
   subjectsEl.innerHTML = '';
   if (!list) return;
-  checkSubjectResets(list);
-  checkTaskResets(list);
+  checkResets(list);
 
   if (list.subjects.length === 0) {
-    const e = document.createElement('div');
-    e.className = 'empty';
+    const e = document.createElement('div'); e.className = 'empty';
     e.textContent = 'No subjects yet. Tap + to add one.';
     subjectsEl.appendChild(e);
     return;
   }
 
-  const sorted = [...list.subjects].sort((a, b) => {
-    const aDone = a.tasks.length > 0 && a.tasks.every(t => t.done);
-    const bDone = b.tasks.length > 0 && b.tasks.every(t => t.done);
-    if (aDone === bDone) return 0;
-    return aDone ? 1 : -1;
-  });
-  sorted.forEach(sub => subjectsEl.appendChild(renderSubject(sub)));
+  let subjects;
+  if (list.sortMode === 'due') {
+    subjects = sortByDue(list.subjects, sub => earliestSubjectDue(sub));
+  } else {
+    subjects = [...list.subjects].sort((a,b) => {
+      const aDone = isAllDone(a), bDone = isAllDone(b);
+      if (aDone === bDone) return 0;
+      return aDone ? 1 : -1;
+    });
+  }
+  subjects.forEach(sub => subjectsEl.appendChild(renderSubject(sub)));
 }
 
-function renderSubject(sub) {
+function isAllDone(sub){
+  const tasks = collectAllTasks(sub);
+  return tasks.length > 0 && tasks.every(t => t.done);
+}
+function collectAllTasks(sub){
+  return [...sub.tasks, ...sub.sections.flatMap(s => s.tasks)];
+}
+function earliestSubjectDue(sub){
+  let earliest = '';
+  collectAllTasksWithCtx(sub).forEach(({task, sec}) => {
+    if (task.done) return;
+    const d = effectiveTaskDue(task, sub, sec);
+    if (!d) return;
+    if (!earliest || d < earliest) earliest = d;
+  });
+  return earliest;
+}
+function collectAllTasksWithCtx(sub){
+  const out = [];
+  sub.tasks.forEach(t => out.push({ task: t, sec: null }));
+  sub.sections.forEach(sec => sec.tasks.forEach(t => out.push({ task: t, sec })));
+  return out;
+}
+
+function renderSubject(sub){
   const wrap = document.createElement('div');
   wrap.className = 'subject';
   wrap.dataset.subjectId = sub.id;
+  wrap.draggable = true;
 
-  const stat = subjectStatus(sub);
+  const stat = summaryStatus(collectAllTasks(sub), sub, null);
   if (stat.kind === 'overdue') wrap.classList.add('has-overdue');
   else if (stat.kind === 'soon') wrap.classList.add('has-soon');
   else if (stat.kind === 'done') wrap.classList.add('all-done');
 
-  const header = document.createElement('div');
-  header.className = 'subject-header';
-
+  // Header
+  const header = document.createElement('div'); header.className = 'subject-header';
   const arrow = document.createElement('span');
-  arrow.className = 'arrow' + (sub.open ? ' open' : '');
-  arrow.textContent = '▶';
+  arrow.className = 'arrow' + (sub.open ? ' open' : ''); arrow.textContent = '▶';
   header.appendChild(arrow);
-
-  const name = document.createElement('div');
-  name.className = 'subject-name';
+  const name = document.createElement('div'); name.className = 'subject-name';
   name.textContent = sub.name || 'Untitled subject';
   header.appendChild(name);
 
+  const dueLabel = dueLabelText(sub);
+  if (dueLabel) {
+    const lbl = document.createElement('span'); lbl.className = 'due-label'; lbl.textContent = dueLabel;
+    header.appendChild(lbl);
+  }
   if (stat.kind === 'overdue') {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-overdue';
+    const pill = document.createElement('span'); pill.className = 'pill pill-overdue';
     pill.textContent = stat.count + (stat.count === 1 ? ' task overdue !' : ' tasks overdue !');
     header.appendChild(pill);
   } else if (stat.kind === 'soon') {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-soon';
+    const pill = document.createElement('span'); pill.className = 'pill pill-soon';
     pill.textContent = stat.count + (stat.count === 1 ? ' task due soon' : ' tasks due soon');
     header.appendChild(pill);
   } else if (stat.kind === 'done') {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-done';
+    const pill = document.createElement('span'); pill.className = 'pill pill-done';
     pill.textContent = 'Completed';
     header.appendChild(pill);
   }
-
-  attachHeaderHandlers(sub, header);
+  attachSubjectHeaderHandlers(sub, header, wrap);
   wrap.appendChild(header);
 
+  // Edit panel for subject (open via dblclick → toggles sub.editing)
+  if (sub.editing) wrap.appendChild(renderSubjectEditPanel(sub));
+
   if (sub.open) {
-    const body = document.createElement('div');
-    body.className = 'subject-body';
-    const sortedTasks = [...sub.tasks].sort((a, b) => {
-      if (a.done === b.done) return 0;
-      return a.done ? 1 : -1;
-    });
-    if (sortedTasks.length === 0) {
-      const e = document.createElement('div');
-      e.className = 'empty'; e.style.padding = '14px';
-      e.textContent = 'No tasks. Right-click the subject to add one.';
+    const body = document.createElement('div'); body.className = 'subject-body';
+
+    // Direct tasks
+    const directVisible = filterVisibleTasks(sub.tasks, sub.showCompleted);
+    const directOrdered = (getList().sortMode === 'due')
+      ? sortByDue(directVisible, t => effectiveTaskDue(t, sub, null))
+      : directVisible.slice().sort((a,b) => (a.done===b.done?0:a.done?1:-1));
+    directOrdered.forEach(t => body.appendChild(renderTask(sub, null, t)));
+
+    // Sections
+    const secOrdered = (getList().sortMode === 'due')
+      ? sortByDue(sub.sections, sec => earliestSectionDue(sub, sec))
+      : sub.sections.slice();
+    secOrdered.forEach(sec => body.appendChild(renderSection(sub, sec)));
+
+    // Show completed toggle (only if there are any completed direct tasks)
+    if (sub.tasks.some(t => t.done)) {
+      const tog = document.createElement('div'); tog.className = 'show-completed';
+      tog.textContent = (sub.showCompleted ? 'Hide completed' : 'Show completed') + ' (' + sub.tasks.filter(t=>t.done).length + ')';
+      tog.addEventListener('click', (e) => { e.stopPropagation(); sub.showCompleted = !sub.showCompleted; save(); render(); });
+      body.appendChild(tog);
+    } else if (sub.tasks.length === 0 && sub.sections.length === 0) {
+      const e = document.createElement('div'); e.className = 'empty'; e.style.padding = '14px';
+      e.textContent = 'Empty. Right-click the subject to add a section or a task.';
       body.appendChild(e);
-    } else {
-      sortedTasks.forEach(t => body.appendChild(renderTask(sub, t)));
     }
+
     wrap.appendChild(body);
   }
   return wrap;
 }
 
-function attachHeaderHandlers(sub, header) {
+function earliestSectionDue(sub, sec){
+  let earliest = '';
+  sec.tasks.forEach(t => {
+    if (t.done) return;
+    const d = effectiveTaskDue(t, sub, sec);
+    if (!d) return;
+    if (!earliest || d < earliest) earliest = d;
+  });
+  return earliest;
+}
+function filterVisibleTasks(tasks, showCompleted){
+  if (showCompleted) return tasks;
+  return tasks.filter(t => !t.done);
+}
+
+function renderSection(sub, sec){
+  const wrap = document.createElement('div');
+  wrap.className = 'section'; wrap.dataset.sectionId = sec.id;
+  wrap.draggable = true;
+
+  const header = document.createElement('div'); header.className = 'section-header';
+  const arrow = document.createElement('span');
+  arrow.className = 'arrow' + (sec.open ? ' open' : ''); arrow.textContent = '▶';
+  header.appendChild(arrow);
+  const nameEl = document.createElement('div'); nameEl.className = 'section-name';
+  nameEl.textContent = sec.name || 'Untitled section';
+  header.appendChild(nameEl);
+  const dueLabel = dueLabelText(sec);
+  if (dueLabel) {
+    const lbl = document.createElement('span'); lbl.className = 'due-label'; lbl.textContent = dueLabel;
+    header.appendChild(lbl);
+  }
+  const stat = summaryStatus(sec.tasks, sub, sec);
+  if (stat.kind === 'overdue') {
+    const pill = document.createElement('span'); pill.className = 'pill pill-overdue';
+    pill.textContent = stat.count + (stat.count === 1 ? ' task overdue !' : ' tasks overdue !');
+    header.appendChild(pill);
+  } else if (stat.kind === 'soon') {
+    const pill = document.createElement('span'); pill.className = 'pill pill-soon';
+    pill.textContent = stat.count + (stat.count === 1 ? ' task due soon' : ' tasks due soon');
+    header.appendChild(pill);
+  } else if (stat.kind === 'done') {
+    const pill = document.createElement('span'); pill.className = 'pill pill-done';
+    pill.textContent = 'Completed'; header.appendChild(pill);
+  }
+  attachSectionHeaderHandlers(sub, sec, header, wrap);
+  wrap.appendChild(header);
+
+  if (sec.editing) wrap.appendChild(renderSectionEditPanel(sub, sec));
+
+  if (sec.open) {
+    const body = document.createElement('div'); body.className = 'section-body';
+    const visible = filterVisibleTasks(sec.tasks, sec.showCompleted);
+    const ordered = (getList().sortMode === 'due')
+      ? sortByDue(visible, t => effectiveTaskDue(t, sub, sec))
+      : visible.slice().sort((a,b) => (a.done===b.done?0:a.done?1:-1));
+    if (ordered.length === 0 && !sec.tasks.some(t=>t.done)) {
+      const e = document.createElement('div'); e.className='empty'; e.style.padding='10px';
+      e.textContent = 'No tasks. Right-click the section to add one.';
+      body.appendChild(e);
+    } else {
+      ordered.forEach(t => body.appendChild(renderTask(sub, sec, t)));
+    }
+    if (sec.tasks.some(t => t.done)) {
+      const tog = document.createElement('div'); tog.className='show-completed';
+      tog.textContent = (sec.showCompleted ? 'Hide completed' : 'Show completed') + ' (' + sec.tasks.filter(t=>t.done).length + ')';
+      tog.addEventListener('click', (e) => { e.stopPropagation(); sec.showCompleted = !sec.showCompleted; save(); render(); });
+      body.appendChild(tog);
+    }
+    wrap.appendChild(body);
+  }
+
+  return wrap;
+}
+
+function renderTask(sub, sec, task){
+  const eff = effectiveTaskDue(task, sub, sec);
+  const stat = statusFromDue(eff, task.done);
+
+  const el = document.createElement('div');
+  el.className = 'task'; el.dataset.taskId = task.id;
+  el.draggable = true;
+  if (stat === 'overdue') el.classList.add('tone-overdue');
+  else if (stat === 'soon') el.classList.add('tone-soon');
+  else if (stat === 'done') el.classList.add('tone-done');
+
+  const row = document.createElement('div'); row.className = 'task-row';
+
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.checked = !!task.done;
+  cb.addEventListener('click', e => e.stopPropagation());
+  cb.addEventListener('change', () => {
+    task.done = cb.checked;
+    if (task.done && task.due && task.due.type === 'repeats') task.lastCompletedDate = toISO(new Date());
+    else if (!task.done) task.lastCompletedDate = '';
+    save();
+    if (task.done) {
+      // fade then re-render
+      el.classList.add('fading');
+      setTimeout(render, 380);
+    } else {
+      render();
+    }
+  });
+  row.appendChild(cb);
+
+  const title = document.createElement('div'); title.className = 'task-title';
+  title.textContent = task.title || 'Untitled task';
+  row.appendChild(title);
+
+  if (stat === 'overdue') {
+    const pill = document.createElement('span'); pill.className = 'pill pill-overdue';
+    pill.textContent = 'Overdue !'; row.appendChild(pill);
+  } else if (stat === 'soon') {
+    const pill = document.createElement('span'); pill.className = 'pill pill-soon';
+    pill.textContent = 'Due soon'; row.appendChild(pill);
+  } else if (stat === 'done') {
+    const pill = document.createElement('span'); pill.className = 'pill pill-done';
+    pill.textContent = 'Completed'; row.appendChild(pill);
+  } else if (eff) {
+    const pill = document.createElement('span'); pill.className = 'pill pill-neutral';
+    pill.textContent = formatDue(eff); row.appendChild(pill);
+  }
+
+  const arrow = document.createElement('span');
+  arrow.className = 'task-arrow'; arrow.textContent = task.expanded ? '▲' : '▼';
+  arrow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (task.expanded) commitOpenTaskPanel();
+    else openTaskPanel(task);
+  });
+  row.appendChild(arrow);
+
+  el.appendChild(row);
+  if (task.expanded) el.appendChild(renderTaskPanel(sub, sec, task));
+
+  attachTaskDragHandlers(el, sub, sec, task);
+  return el;
+}
+
+// ============================================================
+// Edit panels
+// ============================================================
+function dueFormHTML(prefix){
+  return `
+    <div class="full">
+      <label>Due type</label>
+      <select data-f="${prefix}-type">
+        <option value="none">No due date</option>
+        <option value="once">One-time due date</option>
+        <option value="repeats">Repeats</option>
+      </select>
+    </div>
+    <div data-f="${prefix}-once-row" class="full">
+      <label>Date</label>
+      <div data-f="${prefix}-date-host"></div>
+    </div>
+    <div data-f="${prefix}-repeats-freq-row">
+      <label>Repeat frequency</label>
+      <select data-f="${prefix}-frequency">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="fortnightly">Fortnightly</option>
+        <option value="custom">Custom (coming soon)</option>
+      </select>
+    </div>
+    <div data-f="${prefix}-repeats-day-row">
+      <label>Repeat day</label>
+      <select data-f="${prefix}-day">
+        <option value="">—</option>
+        <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+        <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+      </select>
+    </div>
+  `;
+}
+function bindDueForm(panel, prefix, dueObj, dateHostHandler){
+  const typeSel = panel.querySelector(`[data-f="${prefix}-type"]`);
+  const onceRow = panel.querySelector(`[data-f="${prefix}-once-row"]`);
+  const freqRow = panel.querySelector(`[data-f="${prefix}-repeats-freq-row"]`);
+  const dayRow  = panel.querySelector(`[data-f="${prefix}-repeats-day-row"]`);
+  const freqSel = panel.querySelector(`[data-f="${prefix}-frequency"]`);
+  const daySel  = panel.querySelector(`[data-f="${prefix}-day"]`);
+  const dateHost= panel.querySelector(`[data-f="${prefix}-date-host"]`);
+
+  // Setup date input inside the host
+  const { wrap: dateWrap, input: dateInput } = makeDateInput(dueObj.date || '', (iso) => { dateInput.value = iso; });
+  dateHost.appendChild(dateWrap);
+
+  typeSel.value = dueObj.type || 'none';
+  freqSel.value = dueObj.frequency || 'weekly';
+  daySel.value = dueObj.day || '';
+
+  function apply(){
+    const t = typeSel.value;
+    onceRow.style.display = (t === 'once') ? '' : 'none';
+    freqRow.style.display = (t === 'repeats') ? '' : 'none';
+    const f = freqSel.value;
+    dayRow.style.display = (t === 'repeats' && (f === 'weekly' || f === 'fortnightly')) ? '' : 'none';
+  }
+  typeSel.addEventListener('change', apply);
+  freqSel.addEventListener('change', apply);
+  apply();
+
+  return {
+    read(){
+      const t = typeSel.value;
+      const out = { type: t, date: '', frequency: '', day: '' };
+      if (t === 'once') out.date = dateInput.value || '';
+      if (t === 'repeats') {
+        out.frequency = freqSel.value;
+        if (out.frequency === 'weekly' || out.frequency === 'fortnightly') out.day = daySel.value || '';
+      }
+      return out;
+    }
+  };
+}
+
+function renderSubjectEditPanel(sub){
+  const panel = document.createElement('div'); panel.className = 'edit-panel';
+  panel.addEventListener('click', e => e.stopPropagation());
+  panel.innerHTML = `
+    <div class="full">
+      <label>Subject name</label>
+      <input type="text" data-f="name" placeholder="Subject name" />
+    </div>
+    ${dueFormHTML('sub')}
+    <div class="actions-row">
+      <span></span>
+      <div class="actions-right">
+        <button class="btn-soft" data-f="cancel">Cancel</button>
+        <button class="btn" data-f="done">Done</button>
+      </div>
+    </div>
+  `;
+  const nameI = panel.querySelector('[data-f="name"]');
+  nameI.value = sub.name || '';
+  const dueBind = bindDueForm(panel, 'sub', sub.due || emptyDue());
+
+  panel.querySelector('[data-f="done"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = nameI.value.trim();
+    if (name) sub.name = name;
+    const newDue = dueBind.read();
+    const changed = JSON.stringify(sub.due) !== JSON.stringify(newDue);
+    sub.due = newDue;
+    if (changed) sub.lastResetDate = '';
+    sub.editing = false;
+    save(); render();
+  });
+  panel.querySelector('[data-f="cancel"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    sub.editing = false;
+    save(); render();
+  });
+  return panel;
+}
+
+function renderSectionEditPanel(sub, sec){
+  const panel = document.createElement('div'); panel.className = 'edit-panel';
+  panel.addEventListener('click', e => e.stopPropagation());
+  panel.innerHTML = `
+    <div class="full">
+      <label>Section name</label>
+      <input type="text" data-f="name" placeholder="Section name" />
+    </div>
+    ${dueFormHTML('sec')}
+    <div class="actions-row">
+      <span></span>
+      <div class="actions-right">
+        <button class="btn-soft" data-f="cancel">Cancel</button>
+        <button class="btn" data-f="done">Done</button>
+      </div>
+    </div>
+  `;
+  const nameI = panel.querySelector('[data-f="name"]');
+  nameI.value = sec.name || '';
+  const dueBind = bindDueForm(panel, 'sec', sec.due || emptyDue());
+
+  panel.querySelector('[data-f="done"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = nameI.value.trim();
+    if (name) sec.name = name;
+    const newDue = dueBind.read();
+    const changed = JSON.stringify(sec.due) !== JSON.stringify(newDue);
+    sec.due = newDue;
+    if (changed) sec.lastResetDate = '';
+    sec.editing = false;
+    save(); render();
+  });
+  panel.querySelector('[data-f="cancel"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    sec.editing = false;
+    save(); render();
+  });
+  return panel;
+}
+
+function renderTaskPanel(sub, sec, task){
+  const panel = document.createElement('div'); panel.className = 'edit-panel';
+  panel.addEventListener('click', e => e.stopPropagation());
+  panel.innerHTML = `
+    <div class="full">
+      <label>Task name</label>
+      <input type="text" data-f="title" placeholder="Task name" />
+    </div>
+    <div class="full">
+      <label>Notes</label>
+      <textarea data-f="notes" placeholder="Notes"></textarea>
+    </div>
+    ${dueFormHTML('task')}
+    <div class="actions-row">
+      <button class="btn-danger" data-f="delete">Delete</button>
+      <div class="actions-right">
+        <button class="btn-soft" data-f="cancel">Cancel</button>
+        <button class="btn" data-f="done">Done</button>
+      </div>
+    </div>
+  `;
+  const titleI = panel.querySelector('[data-f="title"]');
+  const notesI = panel.querySelector('[data-f="notes"]');
+  titleI.value = task.title || '';
+  notesI.value = task.notes || '';
+  const dueBind = bindDueForm(panel, 'task', task.due || emptyDue());
+
+  panel.querySelector('[data-f="done"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const title = titleI.value.trim(); if (title) task.title = title;
+    task.notes = notesI.value || '';
+    task.due = dueBind.read();
+    task.expanded = false;
+    save(); render();
+  });
+  panel.querySelector('[data-f="cancel"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    task.expanded = false;
+    save(); render();
+  });
+  panel.querySelector('[data-f="delete"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openConfirmModal({
+      title: 'Delete Task',
+      message: 'Delete task "' + (task.title || 'untitled') + '"?',
+      okLabel: 'Delete', danger: true,
+      onConfirm: () => {
+        if (sec) sec.tasks = sec.tasks.filter(x => x.id !== task.id);
+        else sub.tasks = sub.tasks.filter(x => x.id !== task.id);
+        save(); render();
+      }
+    });
+  });
+  return panel;
+}
+
+// ============================================================
+// Header handlers (subject/section)
+// ============================================================
+function attachSubjectHeaderHandlers(sub, header, wrap){
   let timer = null;
   header.addEventListener('click', (e) => {
-    // ignore right-click
     if (e.button === 2) return;
-    if (timer) {
-      clearTimeout(timer); timer = null;
-      return;
-    }
+    if (timer) { clearTimeout(timer); timer = null; return; }
     timer = setTimeout(() => {
       timer = null;
       sub.open = !sub.open;
@@ -1350,222 +1451,106 @@ function attachHeaderHandlers(sub, header) {
   header.addEventListener('dblclick', (e) => {
     e.preventDefault();
     if (timer) { clearTimeout(timer); timer = null; }
-    commitOpenTaskPanel(); // ensure no panel open
-    openSubjectSettingsModal(sub);
+    commitOpenTaskPanel();
+    closeAllOtherEditPanels();
+    sub.editing = true;
+    save(); render();
   });
   header.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (timer) { clearTimeout(timer); timer = null; }
     showSubjectCtxMenu(e.clientX, e.clientY, sub);
   });
+  attachSubjectDragHandlers(wrap, sub);
 }
-
-function renderTask(sub, task) {
-  const stat = statusFor(task);
-  const due = taskEffectiveDue(task);
-
-  const el = document.createElement('div');
-  el.className = 'task';
-  el.dataset.taskId = task.id;
-  if (stat === 'overdue') el.classList.add('tone-overdue');
-  else if (stat === 'soon') el.classList.add('tone-soon');
-  else if (stat === 'done') el.classList.add('tone-done');
-
-  const row = document.createElement('div');
-  row.className = 'task-row';
-
-  const cb = document.createElement('input');
-  cb.type = 'checkbox';
-  cb.checked = !!task.done;
-  cb.addEventListener('click', e => e.stopPropagation());
-  cb.addEventListener('change', () => {
-    task.done = cb.checked;
-    if (task.done && task.repeatSchedule && task.repeatSchedule !== 'none') {
-      task.lastCompletedDate = toISO(new Date());
-    } else if (!task.done) {
-      task.lastCompletedDate = '';
-    }
+function attachSectionHeaderHandlers(sub, sec, header, wrap){
+  let timer = null;
+  header.addEventListener('click', (e) => {
+    if (e.button === 2) return;
+    if (timer) { clearTimeout(timer); timer = null; return; }
+    timer = setTimeout(() => {
+      timer = null;
+      sec.open = !sec.open;
+      save(); render();
+    }, 230);
+  });
+  header.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+    if (timer) { clearTimeout(timer); timer = null; }
+    commitOpenTaskPanel();
+    closeAllOtherEditPanels();
+    sec.editing = true;
     save(); render();
   });
-  row.appendChild(cb);
-
-  const title = document.createElement('div');
-  title.className = 'task-title';
-  title.textContent = task.title || 'Untitled task';
-  row.appendChild(title);
-
-  if (stat === 'overdue') {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-overdue'; pill.textContent = 'Overdue !'; row.appendChild(pill);
-  } else if (stat === 'soon') {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-soon'; pill.textContent = 'Due soon'; row.appendChild(pill);
-  } else if (stat === 'done') {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-done'; pill.textContent = 'Completed'; row.appendChild(pill);
-  } else if (due) {
-    const pill = document.createElement('span');
-    pill.className = 'pill pill-neutral'; pill.textContent = formatDue(due); row.appendChild(pill);
-  }
-
-  const arrow = document.createElement('span');
-  arrow.className = 'task-arrow';
-  arrow.textContent = task.expanded ? '▲' : '▼';
-  arrow.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (task.expanded) {
-      commitOpenTaskPanel();
-    } else {
-      openTaskPanel(task, sub);
-    }
+  header.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (timer) { clearTimeout(timer); timer = null; }
+    showSectionCtxMenu(e.clientX, e.clientY, sub, sec);
   });
-  row.appendChild(arrow);
-
-  el.appendChild(row);
-
-  if (task.expanded) {
-    el.appendChild(renderTaskPanel(sub, task));
-  }
-  return el;
+  attachSectionDragHandlers(wrap, sub, sec);
 }
 
-function renderTaskPanel(sub, task) {
-  const det = document.createElement('div');
-  det.className = 'task-details';
-  // Stop clicks inside from closing the panel
-  det.addEventListener('click', (e) => e.stopPropagation());
-
-  // Title
-  const titleWrap = document.createElement('div'); titleWrap.className = 'full';
-  titleWrap.innerHTML = `<label>Task name</label>`;
-  const titleI = document.createElement('input');
-  titleI.type = 'text'; titleI.placeholder = 'Task name';
-  titleI.dataset.f = 'title'; titleI.value = task.title || '';
-  titleWrap.appendChild(titleI);
-  det.appendChild(titleWrap);
-
-  // Notes
-  const notesWrap = document.createElement('div'); notesWrap.className = 'full';
-  notesWrap.innerHTML = `<label>Notes</label>`;
-  const notesI = document.createElement('textarea');
-  notesI.placeholder = 'Notes'; notesI.dataset.f = 'notes';
-  notesI.value = task.notes || '';
-  notesWrap.appendChild(notesI);
-  det.appendChild(notesWrap);
-
-  // Manual due date
-  const dueWrap = document.createElement('div');
-  dueWrap.innerHTML = `<label>Manual Due Date</label>`;
-  const { wrap: dueFieldWrap, input: dueI } = makeDateInput(task.manualDue || '', (iso) => {
-    task.manualDue = iso || '';
-    save();
+function closeAllOtherEditPanels(){
+  const list = getList(); if (!list) return;
+  list.subjects.forEach(sub => {
+    sub.editing = false;
+    sub.sections.forEach(sec => sec.editing = false);
   });
-  dueI.dataset.f = 'manualDue';
-  dueWrap.appendChild(dueFieldWrap);
-  det.appendChild(dueWrap);
-
-  // Repeat schedule
-  const rsWrap = document.createElement('div');
-  rsWrap.innerHTML = `<label>Repeat Schedule</label>`;
-  const rsSel = document.createElement('select');
-  rsSel.dataset.f = 'repeatSchedule';
-  REPEAT_OPTIONS.forEach(opt => {
-    const o = document.createElement('option');
-    o.value = opt.value; o.textContent = opt.label;
-    rsSel.appendChild(o);
-  });
-  rsSel.value = task.repeatSchedule || 'none';
-  rsWrap.appendChild(rsSel);
-  det.appendChild(rsWrap);
-
-  // Action row
-  const actions = document.createElement('div');
-  actions.className = 'actions-row';
-
-  const delBtn = document.createElement('button');
-  delBtn.className = 'btn-danger'; delBtn.textContent = 'Delete';
-  delBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openConfirmModal({
-      title: 'Delete Task',
-      message: 'Delete task "' + (task.title || 'untitled') + '"?',
-      okLabel: 'Delete', danger: true,
-      onConfirm: () => {
-        sub.tasks = sub.tasks.filter(x => x.id !== task.id);
-        save(); render();
-      }
-    });
-  });
-
-  const right = document.createElement('div');
-  right.className = 'actions-right';
-  const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn-soft'; cancelBtn.textContent = 'Cancel';
-  cancelBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    cancelOpenTaskPanel();
-  });
-  const doneBtn = document.createElement('button');
-  doneBtn.className = 'btn'; doneBtn.textContent = 'Done';
-  doneBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    commitOpenTaskPanel();
-  });
-  right.appendChild(cancelBtn);
-  right.appendChild(doneBtn);
-
-  actions.appendChild(delBtn);
-  actions.appendChild(right);
-  det.appendChild(actions);
-
-  return det;
 }
 
 // ============================================================
 // Task panel open/commit/cancel
 // ============================================================
-function getOpenTask() {
-  const list = getList();
-  if (!list) return null;
-  for (const s of list.subjects) {
-    for (const t of s.tasks) {
-      if (t.expanded) return { task: t, sub: s };
-    }
+function getOpenTask(){
+  const list = getList(); if (!list) return null;
+  for (const sub of list.subjects) {
+    for (const t of sub.tasks) if (t.expanded) return { task: t, sub, sec: null };
+    for (const sec of sub.sections) for (const t of sec.tasks) if (t.expanded) return { task: t, sub, sec };
   }
   return null;
 }
-function openTaskPanel(task, sub) {
-  // Close others (commit any open one first)
+function openTaskPanel(task){
   commitOpenTaskPanel();
   const list = getList();
-  list.subjects.forEach(s => s.tasks.forEach(t => { t.expanded = false; }));
+  list.subjects.forEach(sub => {
+    sub.tasks.forEach(t => t.expanded = false);
+    sub.sections.forEach(s => s.tasks.forEach(t => t.expanded = false));
+    sub.editing = false;
+    sub.sections.forEach(s => s.editing = false);
+  });
   task.expanded = true;
-  sub.open = true;
   save(); render();
 }
-function readPanelIntoTask(task) {
-  const taskEl = document.querySelector('[data-task-id="' + task.id + '"]');
+function readPanelIntoTask(o){
+  const taskEl = document.querySelector('[data-task-id="' + o.task.id + '"]');
   if (!taskEl) return;
-  const det = taskEl.querySelector('.task-details');
-  if (!det) return;
+  const det = taskEl.querySelector('.edit-panel'); if (!det) return;
   const titleVal = (det.querySelector('[data-f="title"]').value || '').trim();
-  task.title = titleVal || task.title;
-  task.notes = det.querySelector('[data-f="notes"]').value || '';
-  task.manualDue = det.querySelector('[data-f="manualDue"]').value || '';
-  task.repeatSchedule = det.querySelector('[data-f="repeatSchedule"]').value || 'none';
+  if (titleVal) o.task.title = titleVal;
+  o.task.notes = det.querySelector('[data-f="notes"]').value || '';
+  // Read due
+  const typeSel = det.querySelector('[data-f="task-type"]');
+  const freqSel = det.querySelector('[data-f="task-frequency"]');
+  const daySel  = det.querySelector('[data-f="task-day"]');
+  const dateInp = det.querySelector('[data-f="task-date-host"] input');
+  const t = typeSel.value;
+  const due = { type: t, date: '', frequency: '', day: '' };
+  if (t === 'once') due.date = (dateInp && dateInp.value) || '';
+  if (t === 'repeats') {
+    due.frequency = freqSel.value;
+    if (due.frequency === 'weekly' || due.frequency === 'fortnightly') due.day = daySel.value || '';
+  }
+  o.task.due = due;
 }
-function commitOpenTaskPanel() {
-  const o = getOpenTask();
-  if (!o) return;
+function commitOpenTaskPanel(){
+  const o = getOpenTask(); if (!o) return;
   if (isCalOpen()) closeCalendar();
-  readPanelIntoTask(o.task);
+  readPanelIntoTask(o);
   o.task.expanded = false;
   save(); render();
 }
-function cancelOpenTaskPanel() {
-  const o = getOpenTask();
-  if (!o) return;
+function cancelOpenTaskPanel(){
+  const o = getOpenTask(); if (!o) return;
   if (isCalOpen()) closeCalendar();
   o.task.expanded = false;
   save(); render();
@@ -1576,23 +1561,19 @@ function cancelOpenTaskPanel() {
 // ============================================================
 const ctxMenu = document.getElementById('ctxMenu');
 let ctxSubject = null;
-function showSubjectCtxMenu(x, y, sub) {
-  hideListCtxMenu();
-  hideListDropdown();
+function showSubjectCtxMenu(x,y,sub){
+  hideListCtxMenu(); hideListDropdown(); hideSectionCtxMenu();
   ctxSubject = sub;
-  ctxMenu.style.left = x + 'px';
-  ctxMenu.style.top = y + 'px';
+  ctxMenu.style.left = x+'px'; ctxMenu.style.top = y+'px';
   ctxMenu.classList.remove('hidden');
   requestAnimationFrame(() => {
     const r = ctxMenu.getBoundingClientRect();
-    if (r.right > window.innerWidth)  ctxMenu.style.left = (window.innerWidth - r.width - 8) + 'px';
-    if (r.bottom > window.innerHeight) ctxMenu.style.top = (window.innerHeight - r.height - 8) + 'px';
+    if (r.right > window.innerWidth)  ctxMenu.style.left = (window.innerWidth - r.width - 8)+'px';
+    if (r.bottom > window.innerHeight) ctxMenu.style.top = (window.innerHeight - r.height - 8)+'px';
   });
 }
-function hideSubjectCtxMenu() {
-  ctxMenu.classList.add('hidden');
-  ctxSubject = null;
-}
+function hideSubjectCtxMenu(){ ctxMenu.classList.add('hidden'); ctxSubject = null; }
+
 ctxMenu.addEventListener('click', (e) => {
   e.stopPropagation();
   const act = e.target.dataset.act;
@@ -1600,41 +1581,106 @@ ctxMenu.addEventListener('click', (e) => {
   const sub = ctxSubject;
   hideSubjectCtxMenu();
   if (act === 'add-task') {
-    openInputModal({
-      title: 'New Task', placeholder: 'Task name', okLabel: 'Add',
+    openInputModal({ title: 'New Task', placeholder: 'Task name', okLabel: 'Add',
       onSave: (name) => {
-        sub.tasks.push({
-          id: uid(), title: name, done: false, expanded: false,
-          notes: '', manualDue: '', repeatSchedule: 'none', lastCompletedDate: ''
-        });
-        sub.open = true;
-        save(); render();
-      }
-    });
+        sub.tasks.push({ id:uid(), title:name, notes:'', done:false, expanded:false, due:emptyDue(), lastCompletedDate:'' });
+        sub.open = true; save(); render();
+      } });
+  } else if (act === 'add-section') {
+    openInputModal({ title: 'New Section', placeholder: 'Section name', okLabel: 'Add',
+      onSave: (name) => {
+        sub.sections.push({ id:uid(), name, open:true, tasks:[], due:emptyDue(), lastResetDate:'', showCompleted:false });
+        sub.open = true; save(); render();
+      } });
   } else if (act === 'rename') {
-    openInputModal({
-      title: 'Rename Subject', placeholder: 'Subject name', initial: sub.name,
-      onSave: (name) => { sub.name = name; save(); render(); }
-    });
+    commitOpenTaskPanel(); closeAllOtherEditPanels();
+    sub.editing = true; save(); render();
+  } else if (act === 'duplicate') {
+    duplicateSubject(sub);
   } else if (act === 'delete') {
-    openConfirmModal({
-      title: 'Delete Subject',
-      message: 'Delete subject "' + sub.name + '" and all its tasks?',
+    openConfirmModal({ title:'Delete Subject',
+      message: 'Delete subject "' + sub.name + '" and everything in it?',
       okLabel: 'Delete', danger: true,
       onConfirm: () => {
         const list = getList();
         list.subjects = list.subjects.filter(s => s.id !== sub.id);
         save(); render();
-      }
+      } });
+  }
+});
+
+function duplicateSubject(sub){
+  const list = getList(); if (!list) return;
+  const copy = JSON.parse(JSON.stringify(sub));
+  reassignIds(copy);
+  copy.name = sub.name + ' copy';
+  const idx = list.subjects.findIndex(s => s.id === sub.id);
+  list.subjects.splice(idx+1, 0, copy);
+  save(); render();
+}
+function duplicateSection(sub, sec){
+  const copy = JSON.parse(JSON.stringify(sec));
+  reassignIds(copy);
+  copy.name = sec.name + ' copy';
+  const idx = sub.sections.findIndex(s => s.id === sec.id);
+  sub.sections.splice(idx+1, 0, copy);
+  save(); render();
+}
+function reassignIds(node){
+  if (node.id) node.id = uid();
+  if (Array.isArray(node.tasks)) node.tasks.forEach(reassignIds);
+  if (Array.isArray(node.sections)) node.sections.forEach(reassignIds);
+}
+
+// ============================================================
+// Section context menu
+// ============================================================
+const sectionCtxMenu = document.getElementById('sectionCtxMenu');
+let ctxSection = null, ctxSectionSub = null;
+function showSectionCtxMenu(x,y, sub, sec){
+  hideSubjectCtxMenu(); hideListCtxMenu(); hideListDropdown();
+  ctxSection = sec; ctxSectionSub = sub;
+  sectionCtxMenu.style.left = x+'px'; sectionCtxMenu.style.top = y+'px';
+  sectionCtxMenu.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    const r = sectionCtxMenu.getBoundingClientRect();
+    if (r.right > window.innerWidth)  sectionCtxMenu.style.left = (window.innerWidth - r.width - 8)+'px';
+    if (r.bottom > window.innerHeight) sectionCtxMenu.style.top = (window.innerHeight - r.height - 8)+'px';
+  });
+}
+function hideSectionCtxMenu(){ sectionCtxMenu.classList.add('hidden'); ctxSection = null; ctxSectionSub = null; }
+
+sectionCtxMenu.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const act = e.target.dataset.act;
+  if (!act || !ctxSection) return;
+  const sec = ctxSection, sub = ctxSectionSub;
+  hideSectionCtxMenu();
+  if (act === 'add-task') {
+    openInputModal({ title:'New Task', placeholder:'Task name', okLabel:'Add',
+      onSave: (name) => {
+        sec.tasks.push({ id:uid(), title:name, notes:'', done:false, expanded:false, due:emptyDue(), lastCompletedDate:'' });
+        sec.open = true; save(); render();
+      }});
+  } else if (act === 'rename') {
+    commitOpenTaskPanel(); closeAllOtherEditPanels();
+    sec.editing = true; save(); render();
+  } else if (act === 'duplicate') {
+    duplicateSection(sub, sec);
+  } else if (act === 'delete') {
+    openConfirmModal({ title:'Delete Section',
+      message: 'Delete section "' + sec.name + '" and all its tasks?',
+      okLabel: 'Delete', danger: true,
+      onConfirm: () => { sub.sections = sub.sections.filter(s => s.id !== sec.id); save(); render(); }
     });
   }
 });
 
 // ============================================================
-// List selector — current name, dropdown, dblclick rename, ctx menu
+// List selector
 // ============================================================
 const listCtxMenu = document.getElementById('listCtxMenu');
-function showListDropdown() {
+function showListDropdown(){
   hideListCtxMenu();
   listDropdownEl.innerHTML = '';
   data.lists.forEach(l => {
@@ -1651,32 +1697,23 @@ function showListDropdown() {
   });
   listDropdownEl.classList.remove('hidden');
 }
-function hideListDropdown() { listDropdownEl.classList.add('hidden'); }
-function showListCtxMenu(x, y) {
-  hideListDropdown();
-  hideSubjectCtxMenu();
-  // Disable delete if last list
+function hideListDropdown(){ listDropdownEl.classList.add('hidden'); }
+function showListCtxMenu(x,y){
+  hideListDropdown(); hideSubjectCtxMenu(); hideSectionCtxMenu();
   const delBtn = listCtxMenu.querySelector('[data-act="delete"]');
   delBtn.disabled = data.lists.length <= 1;
-  listCtxMenu.style.left = x + 'px';
-  listCtxMenu.style.top = y + 'px';
+  listCtxMenu.style.left = x+'px'; listCtxMenu.style.top = y+'px';
   listCtxMenu.classList.remove('hidden');
-  requestAnimationFrame(() => {
-    const r = listCtxMenu.getBoundingClientRect();
-    if (r.right > window.innerWidth)  listCtxMenu.style.left = (window.innerWidth - r.width - 8) + 'px';
-    if (r.bottom > window.innerHeight) listCtxMenu.style.top = (window.innerHeight - r.height - 8) + 'px';
-  });
 }
-function hideListCtxMenu() { listCtxMenu.classList.add('hidden'); }
+function hideListCtxMenu(){ listCtxMenu.classList.add('hidden'); }
 
-(function initListSelector() {
+(function initListSelector(){
   let timer = null;
   listCurrentEl.addEventListener('click', (e) => {
     e.stopPropagation();
     if (timer) { clearTimeout(timer); timer = null; return; }
     timer = setTimeout(() => {
       timer = null;
-      // Toggle dropdown
       if (listDropdownEl.classList.contains('hidden')) showListDropdown();
       else hideListDropdown();
     }, 230);
@@ -1685,16 +1722,12 @@ function hideListCtxMenu() { listCtxMenu.classList.add('hidden'); }
     e.preventDefault();
     if (timer) { clearTimeout(timer); timer = null; }
     hideListDropdown();
-    const list = getList();
-    if (!list) return;
-    openInputModal({
-      title: 'Rename List', placeholder: 'List name', initial: list.name,
-      onSave: (name) => { list.name = name; save(); render(); }
-    });
+    const list = getList(); if (!list) return;
+    openInputModal({ title:'Rename List', placeholder:'List name', initial:list.name,
+      onSave: (name) => { list.name = name; save(); render(); }});
   });
   listCurrentEl.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (timer) { clearTimeout(timer); timer = null; }
     showListCtxMenu(e.clientX, e.clientY);
   });
@@ -1706,95 +1739,194 @@ listCtxMenu.addEventListener('click', (e) => {
   if (!act) return;
   hideListCtxMenu();
   if (act === 'new') {
-    openInputModal({
-      title: 'New List', placeholder: 'List name', okLabel: 'Create',
+    openInputModal({ title:'New List', placeholder:'List name', okLabel:'Create',
       onSave: (name) => {
         const id = uid();
-        data.lists.push({ id, name, subjects: [] });
-        data.currentListId = id;
-        save(); render();
-      }
-    });
+        data.lists.push({ id, name, subjects:[], sortMode:'custom' });
+        data.currentListId = id; save(); render();
+      }});
   } else if (act === 'rename') {
     const list = getList(); if (!list) return;
-    openInputModal({
-      title: 'Rename List', placeholder: 'List name', initial: list.name,
-      onSave: (name) => { list.name = name; save(); render(); }
-    });
+    openInputModal({ title:'Rename List', placeholder:'List name', initial:list.name,
+      onSave: (name) => { list.name = name; save(); render(); }});
   } else if (act === 'delete') {
     if (data.lists.length <= 1) return;
     const list = getList();
-    openConfirmModal({
-      title: 'Delete List',
+    openConfirmModal({ title:'Delete List',
       message: 'Delete "' + list.name + '" and everything in it?',
-      okLabel: 'Delete', danger: true,
+      okLabel:'Delete', danger:true,
       onConfirm: () => {
         data.lists = data.lists.filter(l => l.id !== list.id);
         data.currentListId = data.lists[0].id;
         save(); render();
-      }
-    });
+      }});
   }
 });
 
 // ============================================================
-// Settings button
+// Sort segments
 // ============================================================
+document.getElementById('sortSegments').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-sort]'); if (!b) return;
+  const list = getList(); if (!list) return;
+  list.sortMode = b.dataset.sort;
+  save(); render();
+});
+
+// ============================================================
+// Search + Settings
+// ============================================================
+document.getElementById('searchBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  openInfoModal('Search', 'Search is coming soon.');
+});
 document.getElementById('settingsBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   commitOpenTaskPanel();
-  hideListDropdown();
-  hideListCtxMenu();
-  hideSubjectCtxMenu();
+  hideListDropdown(); hideListCtxMenu(); hideSubjectCtxMenu(); hideSectionCtxMenu();
   openSettingsModal();
 });
 
 // ============================================================
-// FAB — new subject
+// FAB
 // ============================================================
 document.getElementById('fab').addEventListener('click', (e) => {
   e.stopPropagation();
   commitOpenTaskPanel();
-  hideListDropdown();
-  hideListCtxMenu();
-  hideSubjectCtxMenu();
-  openInputModal({
-    title: 'New Subject', placeholder: 'Subject name', okLabel: 'Create',
+  hideListDropdown(); hideListCtxMenu(); hideSubjectCtxMenu(); hideSectionCtxMenu();
+  openInputModal({ title:'New Subject', placeholder:'Subject name', okLabel:'Create',
     onSave: (name) => {
       const list = getList(); if (!list) return;
-      list.subjects.push({
-        id: uid(), name: name, open: true, tasks: [],
-        resetSchedule: 'None', resetDay: 'None', lastResetDate: ''
-      });
+      list.subjects.push({ id:uid(), name, open:true, tasks:[], sections:[],
+        due:emptyDue(), lastResetDate:'', showCompleted:false });
       save(); render();
-    }
-  });
+    }});
 });
+
+// ============================================================
+// Drag & drop handlers
+// ============================================================
+function attachSubjectDragHandlers(wrap, sub){
+  wrap.addEventListener('dragstart', (e) => {
+    e.stopPropagation();
+    startDrag(e, { kind:'subject', subjectId: sub.id }, wrap);
+  });
+  wrap.addEventListener('dragend', endDrag);
+  wrap.addEventListener('dragover', (e) => {
+    if (!dragInfo) return;
+    if (dragInfo.kind !== 'subject') return;
+    if (dragInfo.subjectId === sub.id) return;
+    e.preventDefault();
+    const r = wrap.getBoundingClientRect();
+    showDropLine(r, e.clientY < r.top + r.height/2);
+  });
+  wrap.addEventListener('drop', (e) => {
+    if (!dragInfo) return;
+    if (dragInfo.kind !== 'subject') return;
+    e.preventDefault();
+    const list = getList();
+    const fromIdx = list.subjects.findIndex(s => s.id === dragInfo.subjectId);
+    let toIdx = list.subjects.findIndex(s => s.id === sub.id);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const r = wrap.getBoundingClientRect();
+    const above = e.clientY < r.top + r.height/2;
+    const [moved] = list.subjects.splice(fromIdx, 1);
+    if (fromIdx < toIdx) toIdx--;
+    list.subjects.splice(above ? toIdx : toIdx+1, 0, moved);
+    endDrag(); save(); render();
+  });
+}
+function attachSectionDragHandlers(wrap, sub, sec){
+  wrap.addEventListener('dragstart', (e) => {
+    e.stopPropagation();
+    startDrag(e, { kind:'section', subjectId: sub.id, sectionId: sec.id }, wrap);
+  });
+  wrap.addEventListener('dragend', endDrag);
+  wrap.addEventListener('dragover', (e) => {
+    if (!dragInfo) return;
+    if (dragInfo.kind !== 'section') return;
+    if (dragInfo.sectionId === sec.id) return;
+    e.preventDefault();
+    const r = wrap.getBoundingClientRect();
+    showDropLine(r, e.clientY < r.top + r.height/2);
+  });
+  wrap.addEventListener('drop', (e) => {
+    if (!dragInfo) return;
+    if (dragInfo.kind !== 'section') return;
+    e.preventDefault();
+    const fromLoc = findSection(dragInfo.sectionId);
+    if (!fromLoc) return;
+    const r = wrap.getBoundingClientRect();
+    const above = e.clientY < r.top + r.height/2;
+    const [moved] = fromLoc.parent.splice(fromLoc.idx, 1);
+    let toIdx = sub.sections.findIndex(s => s.id === sec.id);
+    if (fromLoc.parent === sub.sections && fromLoc.idx < toIdx) toIdx--;
+    sub.sections.splice(above ? toIdx : toIdx+1, 0, moved);
+    endDrag(); save(); render();
+  });
+  // Allow dropping a task into the section (appends at end)
+  wrap.addEventListener('dragover', (e) => {
+    if (!dragInfo || dragInfo.kind !== 'task') return;
+    e.preventDefault();
+    wrap.classList.add('drag-target-highlight');
+  });
+  wrap.addEventListener('dragleave', (e) => {
+    if (!dragInfo || dragInfo.kind !== 'task') return;
+    if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('drag-target-highlight');
+  });
+  wrap.addEventListener('drop', (e) => {
+    if (!dragInfo || dragInfo.kind !== 'task') return;
+    e.preventDefault();
+    e.stopPropagation();
+    const fromLoc = findTask(dragInfo.taskId);
+    if (!fromLoc) return;
+    fromLoc.parent.splice(fromLoc.idx, 1);
+    sec.tasks.push(fromLoc.task);
+    wrap.classList.remove('drag-target-highlight');
+    endDrag(); save(); render();
+  });
+}
+function attachTaskDragHandlers(el, sub, sec, task){
+  el.addEventListener('dragstart', (e) => {
+    e.stopPropagation();
+    startDrag(e, { kind:'task', taskId: task.id }, el);
+  });
+  el.addEventListener('dragend', endDrag);
+  el.addEventListener('dragover', (e) => {
+    if (!dragInfo || dragInfo.kind !== 'task') return;
+    if (dragInfo.taskId === task.id) return;
+    e.preventDefault();
+    const r = el.getBoundingClientRect();
+    showDropLine(r, e.clientY < r.top + r.height/2);
+  });
+  el.addEventListener('drop', (e) => {
+    if (!dragInfo || dragInfo.kind !== 'task') return;
+    if (dragInfo.taskId === task.id) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const fromLoc = findTask(dragInfo.taskId);
+    if (!fromLoc) return;
+    const targetParent = sec ? sec.tasks : sub.tasks;
+    let toIdx = targetParent.findIndex(t => t.id === task.id);
+    const r = el.getBoundingClientRect();
+    const above = e.clientY < r.top + r.height/2;
+    fromLoc.parent.splice(fromLoc.idx, 1);
+    if (fromLoc.parent === targetParent && fromLoc.idx < toIdx) toIdx--;
+    targetParent.splice(above ? toIdx : toIdx+1, 0, fromLoc.task);
+    endDrag(); save(); render();
+  });
+}
 
 // ============================================================
 // Global outside-click + Escape
 // ============================================================
 document.addEventListener('click', (e) => {
-  // Calendar outside-click
-  if (isCalOpen()
-      && !calPopup.contains(e.target)
-      && e.target !== activeCalInput) {
-    closeCalendar();
-  }
-  // List dropdown outside-click
-  if (!listDropdownEl.classList.contains('hidden')
-      && !listDropdownEl.contains(e.target)
-      && e.target !== listCurrentEl) {
-    hideListDropdown();
-  }
-  // List ctx menu outside-click
-  if (!listCtxMenu.classList.contains('hidden') && !listCtxMenu.contains(e.target)) {
-    hideListCtxMenu();
-  }
-  // Subject ctx menu outside-click
-  if (!ctxMenu.classList.contains('hidden') && !ctxMenu.contains(e.target)) {
-    hideSubjectCtxMenu();
-  }
+  if (isCalOpen() && !calPopup.contains(e.target) && e.target !== activeCalInput) closeCalendar();
+  if (!listDropdownEl.classList.contains('hidden') && !listDropdownEl.contains(e.target) && e.target !== listCurrentEl) hideListDropdown();
+  if (!listCtxMenu.classList.contains('hidden') && !listCtxMenu.contains(e.target)) hideListCtxMenu();
+  if (!ctxMenu.classList.contains('hidden') && !ctxMenu.contains(e.target)) hideSubjectCtxMenu();
+  if (!sectionCtxMenu.classList.contains('hidden') && !sectionCtxMenu.contains(e.target)) hideSectionCtxMenu();
+
   // Task panel outside-click → commit
   const o = getOpenTask();
   if (o) {
@@ -1805,15 +1937,74 @@ document.addEventListener('click', (e) => {
         && !overlayEl.contains(e.target)
         && !ctxMenu.contains(e.target)
         && !listCtxMenu.contains(e.target)
-        && !listDropdownEl.contains(e.target)) {
+        && !listDropdownEl.contains(e.target)
+        && !sectionCtxMenu.contains(e.target)) {
       commitOpenTaskPanel();
+      return;
+    }
+  }
+  // Subject/section edit panel outside-click → close (treat as commit done from inside)
+  const list = getList();
+  if (list) {
+    for (const sub of list.subjects) {
+      if (sub.editing) {
+        const subEl = document.querySelector('[data-subject-id="' + sub.id + '"]');
+        if (subEl && !subEl.contains(e.target) && !calPopup.contains(e.target) && !overlayEl.contains(e.target)) {
+          // Treat as Done (read fields)
+          const panel = subEl.querySelector('.edit-panel');
+          if (panel) {
+            const nameI = panel.querySelector('[data-f="name"]');
+            const t = panel.querySelector('[data-f="sub-type"]').value;
+            const due = { type:t, date:'', frequency:'', day:'' };
+            if (t === 'once') due.date = (panel.querySelector('[data-f="sub-date-host"] input').value || '');
+            if (t === 'repeats') {
+              due.frequency = panel.querySelector('[data-f="sub-frequency"]').value;
+              if (due.frequency === 'weekly' || due.frequency === 'fortnightly')
+                due.day = panel.querySelector('[data-f="sub-day"]').value || '';
+            }
+            const changed = JSON.stringify(sub.due) !== JSON.stringify(due);
+            if ((nameI.value || '').trim()) sub.name = nameI.value.trim();
+            sub.due = due;
+            if (changed) sub.lastResetDate = '';
+          }
+          sub.editing = false;
+          save(); render();
+          return;
+        }
+      }
+      for (const sec of sub.sections) {
+        if (sec.editing) {
+          const secEl = document.querySelector('[data-section-id="' + sec.id + '"]');
+          if (secEl && !secEl.contains(e.target) && !calPopup.contains(e.target) && !overlayEl.contains(e.target)) {
+            const panel = secEl.querySelector('.edit-panel');
+            if (panel) {
+              const nameI = panel.querySelector('[data-f="name"]');
+              const t = panel.querySelector('[data-f="sec-type"]').value;
+              const due = { type:t, date:'', frequency:'', day:'' };
+              if (t === 'once') due.date = (panel.querySelector('[data-f="sec-date-host"] input').value || '');
+              if (t === 'repeats') {
+                due.frequency = panel.querySelector('[data-f="sec-frequency"]').value;
+                if (due.frequency === 'weekly' || due.frequency === 'fortnightly')
+                  due.day = panel.querySelector('[data-f="sec-day"]').value || '';
+              }
+              const changed = JSON.stringify(sec.due) !== JSON.stringify(due);
+              if ((nameI.value || '').trim()) sec.name = nameI.value.trim();
+              sec.due = due;
+              if (changed) sec.lastResetDate = '';
+            }
+            sec.editing = false;
+            save(); render();
+            return;
+          }
+        }
+      }
     }
   }
 });
 
 document.addEventListener('contextmenu', (e) => {
-  // Close other floating menus when right-clicking elsewhere
   if (!ctxMenu.classList.contains('hidden') && !ctxMenu.contains(e.target)) hideSubjectCtxMenu();
+  if (!sectionCtxMenu.classList.contains('hidden') && !sectionCtxMenu.contains(e.target)) hideSectionCtxMenu();
   if (!listCtxMenu.classList.contains('hidden') && !listCtxMenu.contains(e.target)) hideListCtxMenu();
 });
 
@@ -1825,17 +2016,20 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (e.key !== 'Escape') return;
-  // Priority order
   if (isCalOpen()) { closeCalendar(); return; }
-  if (isModalOpen()) {
-    if (modalState && modalState.onCancel) modalState.onCancel();
-    else closeModal();
-    return;
-  }
+  if (isModalOpen()) { (modalState && modalState.onCancel) ? modalState.onCancel() : closeModal(); return; }
   if (!ctxMenu.classList.contains('hidden')) { hideSubjectCtxMenu(); return; }
+  if (!sectionCtxMenu.classList.contains('hidden')) { hideSectionCtxMenu(); return; }
   if (!listCtxMenu.classList.contains('hidden')) { hideListCtxMenu(); return; }
   if (!listDropdownEl.classList.contains('hidden')) { hideListDropdown(); return; }
   if (getOpenTask()) { cancelOpenTaskPanel(); return; }
+  // Cancel any open subject/section edit panels
+  const list = getList();
+  if (list) {
+    let any = false;
+    list.subjects.forEach(sub => { if (sub.editing) { sub.editing = false; any = true; } sub.sections.forEach(s => { if (s.editing) { s.editing = false; any = true; } }); });
+    if (any) { save(); render(); }
+  }
 });
 
 // First paint

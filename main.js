@@ -1,5 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 
+app.setName('Loop');
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 900,

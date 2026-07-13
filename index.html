@@ -725,12 +725,13 @@
     color:var(--muted);
   }
   .task.completion-leaving, .today-task.completion-leaving{
-    opacity:0; transform:translateX(18px);
-    transition:opacity 210ms ease, transform 240ms cubic-bezier(.2,.7,.2,1), background 180ms ease;
+    overflow:hidden;
+    box-sizing:border-box;
+    will-change:height, margin, padding, opacity, transform;
     pointer-events:none;
   }
   @media (prefers-reduced-motion:reduce){
-    .task.completion-leaving, .today-task.completion-leaving{transform:none; transition-duration:80ms}
+    .task.completion-leaving, .today-task.completion-leaving{transform:none !important; will-change:auto}
   }
 
   /* task appear animation */
@@ -1960,7 +1961,7 @@ toastUndoBtn.addEventListener('click', () => { if (toastUndoFn) toastUndoFn(); h
 // Completion batching: acknowledge each click immediately, then wait for a
 // short pause before removing every newly completed row and reflowing once.
 const COMPLETION_IDLE_MS = 600;
-const COMPLETION_LEAVE_MS = 240;
+const COMPLETION_LEAVE_MS = 480;
 let activeCompletionBatch = null;
 
 function activeTaskPositions(){
@@ -2002,18 +2003,66 @@ function undoCompletionBatch(batch){
   if (activeCompletionBatch === batch) activeCompletionBatch = null;
   save(); renderWithTaskMotion();
 }
+function collapseCompletedElement(el, duration){
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const cs = getComputedStyle(el);
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Object.assign(el.style, {
+    boxSizing:'border-box',
+    overflow:'hidden',
+    height:rect.height + 'px',
+    marginTop:cs.marginTop,
+    marginBottom:cs.marginBottom,
+    paddingTop:cs.paddingTop,
+    paddingBottom:cs.paddingBottom,
+    borderTopWidth:cs.borderTopWidth,
+    borderBottomWidth:cs.borderBottomWidth,
+    opacity:cs.opacity,
+    transform:'translateX(0)',
+    transition:'none'
+  });
+  el.classList.add('completion-leaving');
+  // Lock the measured start geometry before beginning the layout collapse.
+  void el.offsetHeight;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const ms = reduced ? 80 : duration;
+    const move = 'cubic-bezier(.45,0,.55,1)';
+    el.style.transition = [
+      `height ${ms}ms ${move}`,
+      `margin-top ${ms}ms ${move}`,
+      `margin-bottom ${ms}ms ${move}`,
+      `padding-top ${ms}ms ${move}`,
+      `padding-bottom ${ms}ms ${move}`,
+      `border-top-width ${ms}ms ${move}`,
+      `border-bottom-width ${ms}ms ${move}`,
+      `opacity ${Math.min(ms, 210)}ms ease`,
+      reduced ? '' : `transform ${Math.min(ms, 260)}ms ${move}`
+    ].filter(Boolean).join(', ');
+    el.style.height = '0px';
+    el.style.marginTop = '0px';
+    el.style.marginBottom = '0px';
+    el.style.paddingTop = '0px';
+    el.style.paddingBottom = '0px';
+    el.style.borderTopWidth = '0px';
+    el.style.borderBottomWidth = '0px';
+    el.style.opacity = '0';
+    if (!reduced) el.style.transform = 'translateX(14px)';
+  }));
+}
 function flushCompletionBatch(batch){
   if (!batch || batch.cancelled || batch.flushed) return;
   batch.flushed = true;
   if (activeCompletionBatch === batch) activeCompletionBatch = null;
+  const host = typeof panelScroll === 'function' ? panelScroll(currentPage) : null;
   batch.records.forEach(r => {
-    document.querySelectorAll('[data-task-id="' + r.task.id + '"]').forEach(el => {
-      if (el.classList.contains('completing')) el.classList.add('completion-leaving');
-    });
+    const el = host && host.querySelector('[data-task-id="' + r.task.id + '"]');
+    if (el && el.classList.contains('completing')) collapseCompletedElement(el, COMPLETION_LEAVE_MS);
   });
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   batch.removeTimer = setTimeout(() => {
     if (!batch.cancelled) renderWithTaskMotion();
-  }, COMPLETION_LEAVE_MS);
+  }, (reduced ? 80 : COMPLETION_LEAVE_MS) + 50);
 }
 function queueTaskCompletion(task, el){
   if (!task || task.done) return;

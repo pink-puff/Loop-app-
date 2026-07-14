@@ -496,6 +496,7 @@
     will-change: transform;
   }
   .page-track.animating{ transition: transform 320ms cubic-bezier(.2,.7,.2,1); }
+  .page-track.settling{ transition: transform 420ms cubic-bezier(.22,1,.36,1); }
   .page-panel{
     flex:0 0 33.3333%; min-width:0;
     height:100%;
@@ -4944,14 +4945,15 @@ function showSortFeedback(text){
 }
 
 // ============================================================
-// Trackpad two-finger swipe → ONE page per gesture, gesture-following
+// Trackpad two-finger swipe → follow the fingers, then glide to the
+// nearest page from the exact release position.
 // ============================================================
 let gestureDeltaX = 0;
 let gestureActive = false;
 let gestureStartIndex = -1;
 let gestureLockedTarget = -1; // -1 = not yet locked
 let gestureIdleTimer = null;
-const WHEEL_DELTA_MULT = 0.55;
+const WHEEL_DELTA_MULT = 1;
 
 function shouldIgnoreSwipe(e){
   if (!data.settings.enableSwipe) return true;
@@ -4977,23 +4979,41 @@ function endGesture(forceSnapBack){
   if (!gestureActive) return;
   const w = pageViewport.offsetWidth || 0;
   const startI = gestureStartIndex;
-  const threshold = w * 0.28;
-  let target = currentPage;
-  if (!forceSnapBack && gestureLockedTarget >= 0 && gestureLockedTarget !== startI
-      && Math.abs(gestureDeltaX) > threshold) {
-    target = PAGES[gestureLockedTarget];
+  const nearestI = forceSnapBack || !w
+    ? startI
+    : Math.max(
+        Math.max(0, startI - 1),
+        Math.min(Math.min(PAGES.length - 1, startI + 1), Math.round(startI + gestureDeltaX / w))
+      );
+  const target = PAGES[nearestI];
+
+  clearTimeout(gestureIdleTimer);
+  gestureIdleTimer = null;
+
+  // Render the destination page chrome while gestureActive is still true.
+  // That keeps render() from resetting the track to a full page first, so the
+  // settle animation begins exactly where the user's fingers released it.
+  if (target !== currentPage) {
+    currentPage = target;
+    data.settings.currentPage = target;
+    save();
+    hideParsePanel();
+    render();
   }
+
   gestureActive = false;
   gestureDeltaX = 0;
   gestureStartIndex = -1;
   gestureLockedTarget = -1;
-  if (target !== currentPage) {
-    setPage(target);
-  } else {
-    pageTrack.classList.add('animating');
-    pageTrack.style.transform = `translateX(${-startI * w}px)`;
-    setTimeout(() => pageTrack.classList.remove('animating'), 320);
-  }
+
+  pageTrack.classList.remove('animating');
+  pageTrack.classList.add('settling');
+  activeTrackAnim = true;
+  pageTrack.style.transform = `translateX(${-nearestI * w}px)`;
+  setTimeout(() => {
+    pageTrack.classList.remove('settling');
+    activeTrackAnim = false;
+  }, 440);
 }
 
 document.addEventListener('wheel', (e) => {
@@ -5005,7 +5025,12 @@ document.addEventListener('wheel', (e) => {
     return;
   }
 
+  // Own horizontal trackpad movement so the browser cannot partially scroll
+  // the document or trigger a competing navigation gesture.
+  e.preventDefault();
+
   pageTrack.classList.remove('animating');
+  pageTrack.classList.remove('settling');
   pageTrack.style.transitionDuration = '';
 
   if (!gestureActive) {
@@ -5050,7 +5075,7 @@ document.addEventListener('wheel', (e) => {
 
   clearTimeout(gestureIdleTimer);
   gestureIdleTimer = setTimeout(() => endGesture(false), 120);
-}, { passive: true });
+}, { passive: false });
 
 // Window resize → re-align track to current page (no animation)
 window.addEventListener('resize', () => {

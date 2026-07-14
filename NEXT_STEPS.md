@@ -1,5 +1,12 @@
 # Loop — Next Steps
 
+## Checklist for every feature change
+
+- [ ] Audit the tutorial, parser tips, placeholders, Settings descriptions, tooltips, empty states, and toasts for outdated claims.
+- [ ] Remove or rewrite instructions for anything that was removed or renamed.
+- [ ] Test every remaining instruction through the visible UI.
+- [ ] Report exactly which outdated wording was found and what replaced it.
+
 ## Next edit: completion animation
 
 - [x] Make the upward task reflow after completion completely smooth.

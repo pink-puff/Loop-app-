@@ -1093,7 +1093,8 @@ function migrateTask(t){
   if (t.expanded === undefined) t.expanded = false;
   if (t.lastCompletedDate === undefined) t.lastCompletedDate = '';
   if (t.completedAt === undefined) t.completedAt = null;
-  if (!Array.isArray(t.tags) || t.tags.length === 0) t.tags = ['School'];
+  // Tags are opt-in. Never silently classify an untagged task as School.
+  if (!Array.isArray(t.tags)) t.tags = [];
   if (t.important === undefined) t.important = false;
   if (!t.due || typeof t.due !== 'object' || t.due.type === undefined) {
     let due = emptyDue();
@@ -1538,7 +1539,7 @@ function openTaskEditModal(task){
   const dueBind = bindDueForm(modalBodyEl, 'tem', task.due || emptyDue());
   // Tag picker
   const tagHost = modalBodyEl.querySelector('#temTagPicker');
-  const taskTags = new Set(Array.isArray(task.tags) && task.tags.length ? task.tags : ['School']);
+  const taskTags = new Set(Array.isArray(task.tags) ? task.tags : []);
   TAG_OPTIONS.forEach(t => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'tag-pill' + (taskTags.has(t) ? ' active' : '');
@@ -1561,7 +1562,7 @@ function openTaskEditModal(task){
     task.timeText = (timeI.value || '').trim();
     task.due = dueBind.read();
     const newTags = [...tagHost.querySelectorAll('.tag-pill.active')].map(b => b.dataset.tag);
-    task.tags = newTags.length ? newTags : ['School'];
+    task.tags = newTags;
     if (impI) task.important = !!impI.checked;
     closeModal(); save(); render();
   }
@@ -3013,7 +3014,7 @@ function renderTaskPanel(sub, task){
   // Tag picker
   const tagHost = panel.querySelector('[data-f="tags"]');
   if (tagHost) {
-    const taskTags = new Set(Array.isArray(task.tags) && task.tags.length ? task.tags : ['School']);
+    const taskTags = new Set(Array.isArray(task.tags) ? task.tags : []);
     TAG_OPTIONS.forEach(t => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tag-pill' + (taskTags.has(t) ? ' active' : '');
@@ -3030,7 +3031,7 @@ function renderTaskPanel(sub, task){
     if (timeI) task.timeText = (timeI.value || '').trim();
     if (tagHost) {
       const newTags = [...tagHost.querySelectorAll('.tag-pill.active')].map(b => b.dataset.tag);
-      task.tags = newTags.length ? newTags : ['School'];
+      task.tags = newTags;
     }
     task.expanded = false; save(); render();
   });
@@ -3109,7 +3110,7 @@ function readPanelIntoTask(o){
   const tagHost = det.querySelector('[data-f="tags"]');
   if (tagHost) {
     const newTags = [...tagHost.querySelectorAll('.tag-pill.active')].map(b => b.dataset.tag);
-    o.task.tags = newTags.length ? newTags : ['School'];
+    o.task.tags = newTags;
   }
 }
 function commitOpenTaskPanel(){
@@ -4089,7 +4090,7 @@ function renderParsePanel(){
   // Tags row — highlight selected (effective) tags
   const tagsRow = document.getElementById('parseTagsRow');
   if (tagsRow) {
-    const effTags = new Set(eff.tags && eff.tags.length ? eff.tags : ['School']);
+    const effTags = new Set(Array.isArray(eff.tags) ? eff.tags : []);
     tagsRow.querySelectorAll('button[data-tag]').forEach(b => {
       b.classList.toggle('active', effTags.has(b.dataset.tag));
     });
@@ -4243,7 +4244,7 @@ function commitTypingBar(){
   const newTaskId = uid();
   // Honor any manual tag edits made in the parse panel
   const effTags = (eff.tags && eff.tags.length) ? eff.tags : ((parsing.parsed && parsing.parsed.tags) || []);
-  const tags = effTags.length ? effTags : ['School'];
+  const tags = effTags;
   const important = !!(parsing.parsed && parsing.parsed.important);
   targetSub.tasks.push({
     id: newTaskId, title: taskTitle, notes: '', done:false, expanded:false,

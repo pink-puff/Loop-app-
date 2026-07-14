@@ -548,8 +548,13 @@
     background:var(--card); border:1px solid var(--border); border-radius:14px;
     padding:18px; box-shadow:var(--shadow-lg); pointer-events:auto;
   }
+  .tutorial-card.avoid-bottom{
+    top:24px; bottom:auto;
+    max-height:calc(100vh - 190px);
+  }
   @media (max-height: 560px){
     .tutorial-card{ padding:12px; bottom:14px; max-height:calc(100vh - 140px) }
+    .tutorial-card.avoid-bottom{ top:12px; bottom:auto; max-height:calc(100vh - 160px) }
     .tutorial-reel{ height:72px }
   }
   .tutorial-step{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px }
@@ -3253,8 +3258,12 @@ const PLACEHOLDERS = [
   'Math worksheet due tomorrow',
   'Dentist Thursday at 4pm',
   'Practice violin every Tuesday',
-  'English essay due next Friday',
-  'Clean my room this weekend'
+  'English essay due next Friday #school',
+  'Clean my room this weekend #home',
+  'Tip: #school adds a School tag',
+  'Tip: Add #tutor or #home for tags',
+  'Tip: “every Tuesday” makes it repeat',
+  'Tip: Add “4pm” to set a time'
 ];
 
 function freshParsingState(){ return {
@@ -4510,7 +4519,7 @@ document.addEventListener('mouseup', (e) => {
 // (Panel visibility is already driven by syncParsePanel on input/focus/click.)
 
 // ===== Placeholder typing animation =====
-const PH_IDLE = 'Type a task or command…';
+const PH_IDLE = 'Add a task…';
 let phIdx = 0, phPos = 0, phMode = 'typing';
 function phTick(){
   // Off if disabled in settings
@@ -4532,7 +4541,7 @@ function phTick(){
   if (phMode === 'typing') {
     phPos++;
     typingInput.placeholder = target.slice(0, phPos);
-    if (phPos >= target.length) { phMode = 'pause'; delay = 800; }
+    if (phPos >= target.length) { phMode = 'pause'; delay = 3200; }
   } else if (phMode === 'pause') {
     phMode = 'deleting'; delay = 30;
   } else {
@@ -5070,6 +5079,7 @@ document.addEventListener('keydown', (e) => {
 // ============================================================
 const profileOverlay = document.getElementById('profileOverlay');
 const tutorialOverlay = document.getElementById('tutorialOverlay');
+const tutorialCard = document.getElementById('tutorialCard');
 const tutorialText = document.getElementById('tutorialText');
 const tutorialStep = document.getElementById('tutorialStep');
 const tutorialReel = document.getElementById('tutorialReel');
@@ -5157,13 +5167,19 @@ function endTutorial(skipped){
   data.settings.onboardingComplete = true;
   save();
   if (skipped) {
-    showToast('To replay the tutorial, type "replay tutorial" or open it in Settings.', null);
+    showToast('You can replay the tutorial from Settings.', null);
   } else {
-    showToast('Tutorial complete. Type "replay tutorial" anytime, or open Settings.', null);
+    showToast('Tutorial complete. You can replay it from Settings.', null);
   }
 }
 function clearTutorialHighlight(){
   document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+  if (tutorialCard) tutorialCard.classList.remove('avoid-bottom');
+}
+function positionTutorialCard(targetEl){
+  if (!tutorialCard) return;
+  const rect = targetEl ? targetEl.getBoundingClientRect() : null;
+  tutorialCard.classList.toggle('avoid-bottom', !!rect && rect.top > window.innerHeight * 0.5);
 }
 function applyTutorialStep(){
   if (!tutorialActive) return;
@@ -5181,10 +5197,12 @@ function applyTutorialStepNow(){
   const step = TUTORIAL_STEPS[tutorialIdx];
   if (!step) return;
   clearTutorialHighlight();
+  let targetEl = null;
   if (step.target) {
-    const el = document.querySelector(step.target);
-    if (el) el.classList.add('tutorial-highlight');
+    targetEl = document.querySelector(step.target);
+    if (targetEl) targetEl.classList.add('tutorial-highlight');
   }
+  positionTutorialCard(targetEl);
   tutorialStep.textContent = (tutorialIdx + 1) + ' of ' + TUTORIAL_STEPS.length;
   tutorialText.textContent = step.text;
   // Last-step button label

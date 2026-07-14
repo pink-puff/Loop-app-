@@ -579,14 +579,26 @@
   .tutorial-reel .reel-prev,
   .tutorial-reel .reel-current,
   .tutorial-reel .reel-next{
-    position:absolute; left:0; right:0; text-align:center;
-    transition: transform 320ms cubic-bezier(.2,.7,.2,1), opacity 320ms ease;
+    position:absolute; left:0; right:0; top:50%; text-align:center;
+    transition:transform 520ms cubic-bezier(.22,.72,.2,1), opacity 420ms ease,
+               color 420ms ease, font-size 420ms ease;
     font-family:inherit;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 10px;
   }
-  .tutorial-reel .reel-current{ top:50%; transform:translateY(-50%); font-size:15px; font-weight:600; color:var(--text); opacity:1 }
-  .tutorial-reel .reel-prev{    top:0;    transform:translateY(0);    font-size:13px; color:var(--muted); opacity:0.55 }
-  .tutorial-reel .reel-next{    bottom:0; transform:translateY(0);    font-size:13px; color:var(--muted); opacity:0.55 }
+  .tutorial-reel .reel-current{ transform:translateY(-50%); font-size:15px; font-weight:600; color:var(--text); opacity:1 }
+  .tutorial-reel .reel-prev{ transform:translateY(-46px); font-size:13px; font-weight:400; color:var(--muted); opacity:0.38 }
+  .tutorial-reel .reel-next{ transform:translateY(28px); font-size:13px; font-weight:400; color:var(--muted); opacity:0.38 }
+  .tutorial-reel.rolling .reel-prev{ transform:translateY(-92px); opacity:0 }
+  .tutorial-reel.rolling .reel-current{ transform:translateY(-46px); font-size:13px; font-weight:400; color:var(--muted); opacity:0.38 }
+  .tutorial-reel.rolling .reel-next{ transform:translateY(-50%); font-size:15px; font-weight:600; color:var(--text); opacity:1 }
+  .tutorial-reel.reel-reset .reel-prev,
+  .tutorial-reel.reel-reset .reel-current,
+  .tutorial-reel.reel-reset .reel-next{ transition:none !important }
+  @media (prefers-reduced-motion:reduce){
+    .tutorial-reel .reel-prev,
+    .tutorial-reel .reel-current,
+    .tutorial-reel .reel-next{ transition-duration:80ms }
+  }
 
   /* Teleport flash on a subject card */
   @keyframes teleportFlash {
@@ -5093,6 +5105,8 @@ const tutorialSkip = document.getElementById('tutorialSkip');
 let tutorialActive = false;
 let tutorialIdx = 0;
 let reelTimer = null;
+let reelRollTimer = null;
+let reelAnimating = false;
 let reelItems = [];
 let reelPos = 0;
 
@@ -5215,7 +5229,7 @@ function applyTutorialStepNow(){
     reelPos = 0;
     tutorialReel.classList.remove('hidden');
     paintReel();
-    reelTimer = setInterval(() => { reelPos = (reelPos + 1) % reelItems.length; paintReel(); }, 2200);
+    reelTimer = setInterval(advanceReel, 2800);
   } else {
     tutorialReel.classList.add('hidden');
   }
@@ -5236,8 +5250,29 @@ function paintReel(){
   reelCurrent.textContent = reelItems[reelPos];
   reelNext.textContent    = reelItems[(reelPos + 1) % n];
 }
+function advanceReel(){
+  if (!tutorialActive || reelAnimating || reelItems.length < 2) return;
+  reelAnimating = true;
+  tutorialReel.classList.add('rolling');
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  reelRollTimer = setTimeout(() => {
+    reelPos = (reelPos + 1) % reelItems.length;
+    tutorialReel.classList.add('reel-reset');
+    paintReel();
+    tutorialReel.classList.remove('rolling');
+    void tutorialReel.offsetHeight;
+    requestAnimationFrame(() => {
+      tutorialReel.classList.remove('reel-reset');
+      reelAnimating = false;
+    });
+    reelRollTimer = null;
+  }, reduced ? 80 : 520);
+}
 function stopReel(){
   if (reelTimer) { clearInterval(reelTimer); reelTimer = null; }
+  if (reelRollTimer) { clearTimeout(reelRollTimer); reelRollTimer = null; }
+  reelAnimating = false;
+  tutorialReel.classList.remove('rolling', 'reel-reset');
 }
 
 tutorialNext.addEventListener('click', () => {

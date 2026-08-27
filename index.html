@@ -6,11 +6,17 @@
 <style>
   /* Theme */
   :root{
+    --theme:#b8a890;
+    --theme-hover:color-mix(in srgb, var(--theme) 84%, #000);
+    --theme-soft:color-mix(in srgb, var(--theme) 22%, transparent);
+    --theme-faint:color-mix(in srgb, var(--theme) 12%, transparent);
+    --theme-border:color-mix(in srgb, var(--theme) 38%, transparent);
+    --on-theme:#fff;
     --bg:#f5f3ef; --card:#fff; --card-soft:#faf8f4;
     --text:#2e2c28; --muted:#7a7468;
     --border:#e2ddd5; --border-soft:#efeae0;
     --soft:#ece6dc; --soft-hover:#ddd5c8;
-    --accent:#b8a890; --accent-hover:#a08f76;
+    --accent:var(--theme); --accent-hover:var(--theme-hover);
     --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
     --shadow-md:0 6px 22px rgba(0,0,0,0.10);
     --shadow-lg:0 12px 40px rgba(0,0,0,0.22);
@@ -20,16 +26,21 @@
     --tone-soon:#fdf2e2;    --tone-soon-b:#efd6ae;
     --tone-done:#eef6ec;    --tone-done-b:#cee0c9;
     --task-overdue:#fbdada; --task-soon:#faebd0; --task-done:#e6f1e3;
-    --selected:#b8a890; --selected-fg:#fff; --today-ring:#b8a890;
-    --drop-line:#b8a890;
-    --sel-hl: rgba(184,168,144,0.28);
+    --selected:var(--theme); --selected-fg:var(--on-theme); --today-ring:var(--theme);
+    --drop-line:var(--theme);
+    --sel-hl:var(--theme-soft);
   }
   [data-theme="dark"]{
+    --theme-hover:color-mix(in srgb, var(--theme) 82%, #fff);
+    --theme-soft:color-mix(in srgb, var(--theme) 20%, transparent);
+    --theme-faint:color-mix(in srgb, var(--theme) 11%, transparent);
+    --theme-border:color-mix(in srgb, var(--theme) 34%, transparent);
+    --on-theme:#1c1a18;
     --bg:#1c1a18; --card:#2a2724; --card-soft:#322f2c;
     --text:#ece6dc; --muted:#a8a298;
     --border:#3d3833; --border-soft:#34302c;
     --soft:#3a3631; --soft-hover:#4a453f;
-    --accent:#b8a890; --accent-hover:#cdbda3;
+    --accent:var(--theme); --accent-hover:var(--theme-hover);
     --shadow-sm:0 1px 2px rgba(0,0,0,0.4);
     --shadow-md:0 6px 22px rgba(0,0,0,0.5);
     --shadow-lg:0 12px 40px rgba(0,0,0,0.6);
@@ -39,9 +50,9 @@
     --tone-soon:#3a2e1c;    --tone-soon-b:#4d3a22;
     --tone-done:#233022;    --tone-done-b:#2c3d2b;
     --task-overdue:#4a2c2c; --task-soon:#4a3a22; --task-done:#2c3d2b;
-    --selected:#b8a890; --selected-fg:#1c1a18; --today-ring:#cdbda3;
-    --drop-line:#cdbda3;
-    --sel-hl: rgba(205,189,163,0.22);
+    --selected:var(--theme); --selected-fg:var(--on-theme); --today-ring:var(--theme-hover);
+    --drop-line:var(--theme-hover);
+    --sel-hl:var(--theme-soft);
   }
   *{box-sizing:border-box}
   html,body{background:var(--bg)}
@@ -57,7 +68,7 @@
   select:focus-visible,
   textarea:focus-visible,
   [tabindex]:focus-visible {
-    outline: 1px solid rgba(120, 95, 65, 0.18);
+    outline: 1px solid var(--theme-border);
     outline-offset: 2px;
     box-shadow: none;
   }
@@ -66,15 +77,20 @@
   [data-theme="dark"] select:focus-visible,
   [data-theme="dark"] textarea:focus-visible,
   [data-theme="dark"] [tabindex]:focus-visible {
-    outline: 1px solid rgba(230, 210, 180, 0.18);
+    outline: 1px solid var(--theme-border);
     outline-offset: 2px;
     box-shadow: none;
   }
+  html, body { height:100vh; }
   body{
     margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    color:var(--text); padding:18px 18px 220px 18px; min-height:100vh;
+    color:var(--text); padding:18px 18px 0 18px;
     transition:background .2s,color .2s; user-select:none;
+    display:flex; flex-direction:column; overflow:hidden;
   }
+  .topbar, .page-header { flex-shrink:0; }
+  /* When any overlay is open the background must not scroll or swipe */
+  body.overlay-open{ overflow:hidden; }
   input,textarea{user-select:text}
   select,button,input,textarea{font-family:inherit;font-size:14px;color:var(--text)}
 
@@ -190,6 +206,23 @@
   .task-arrow:hover{background:var(--soft)}
   .subject-pill{font-size:11px; color:var(--muted); margin-right:6px}
 
+  /* Important "!" toggle */
+  .task-important-btn{
+    background:transparent; border:none; color:var(--muted);
+    cursor:pointer; padding:6px 8px; border-radius:8px;
+    font-size:14px; line-height:1; font-weight:700;
+  }
+  .task-important-btn:hover{ background:var(--soft); color:var(--text); }
+  .task-important-btn.active{ color:var(--pill-overdue); }
+  .task.important{ border-left:3px solid var(--pill-overdue); padding-left:7px; }
+  .today-task.important{ border-left:4px solid var(--pill-overdue); }
+  .today-task.important .name::before{
+    content:'! '; color:var(--pill-overdue); font-weight:700;
+  }
+  .task.important .task-title::before{
+    content:'! '; color:var(--pill-overdue); font-weight:700;
+  }
+
   /* edit pen button on tasks/subjects */
   .task-edit-btn, .subject-edit-btn{
     background:transparent; border:none; color:var(--muted);
@@ -211,7 +244,7 @@
   /* drag badge for group moves */
   .drag-badge{
     position:fixed; left:-9999px; top:-9999px;
-    background:var(--accent); color:#fff;
+    background:var(--accent); color:var(--on-theme);
     padding:4px 10px; border-radius:999px;
     font-size:12px; font-weight:600;
     box-shadow:var(--shadow-md);
@@ -227,6 +260,34 @@
     transition:opacity 250ms ease;
   }
 
+  /* tag filter chips (Today / Upcoming / Organize) */
+  .filter-chips{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 14px}
+  .filter-chip{
+    background:transparent; border:1px solid var(--border-soft);
+    color:var(--muted); cursor:pointer; padding:5px 12px;
+    border-radius:999px; font-size:13px;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .filter-chip:hover{ background:var(--soft); color:var(--text); }
+  .filter-chip.active{ background:var(--accent); color:var(--on-theme); border-color:var(--accent); }
+
+  /* tag pills shown inside task rows */
+  .tag-pill-mini{
+    display:inline-block; font-size:10px; font-weight:600;
+    padding:2px 8px; border-radius:999px;
+    background:var(--soft); color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.4px;
+    margin-left:4px; vertical-align:middle;
+  }
+  /* tag picker inside edit modal */
+  .tag-picker{display:flex; gap:6px; flex-wrap:wrap}
+  .tag-picker .tag-pill{
+    background:var(--soft); color:var(--text);
+    border:none; padding:6px 12px; border-radius:999px;
+    cursor:pointer; font-size:13px;
+  }
+  .tag-picker .tag-pill.active{ background:var(--accent); color:var(--on-theme); }
+
   /* select-mode toggle */
   .select-toggle{
     background:transparent; border:1px solid var(--border-soft);
@@ -234,7 +295,7 @@
     border-radius:999px; font-size:12px;
   }
   .select-toggle:hover{ background:var(--soft); color:var(--text); }
-  .select-toggle.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .select-toggle.active{ background:var(--accent); color:var(--on-theme); border-color:var(--accent); }
 
   /* pills */
   .pill{display:inline-block; font-size:12px; padding:3px 9px; border-radius:999px; white-space:nowrap; font-weight:500}
@@ -260,7 +321,7 @@
   .edit-panel .actions-right{display:flex; gap:8px}
 
   /* buttons */
-  .btn{background:var(--accent); color:#fff; border:none; padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:500}
+  .btn{background:var(--accent); color:var(--on-theme); border:none; padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:500}
   .btn:hover{background:var(--accent-hover)}
   .btn-soft{background:var(--soft); color:var(--text); border:none; padding:8px 14px; border-radius:10px; cursor:pointer}
   .btn-soft:hover{background:var(--soft-hover)}
@@ -281,12 +342,12 @@
     transition:background .15s, color .15s;
   }
   .nav-island button:hover{color:var(--text)}
-  .nav-island button.active{background:var(--accent); color:#fff}
+  .nav-island button.active{background:var(--accent); color:var(--on-theme)}
 
   .fab-add{
     position:fixed; bottom:84px; left:50%; transform:translateX(-50%);
     width:48px; height:48px; border-radius:50%;
-    background:var(--accent); color:#fff; font-size:24px; line-height:1;
+    background:var(--accent); color:var(--on-theme); font-size:24px; line-height:1;
     border:none; cursor:pointer; box-shadow:var(--shadow-md); z-index:99;
     display:flex; align-items:center; justify-content:center;
   }
@@ -334,7 +395,33 @@
   /* modal (still used for some popups) */
   .overlay{position:fixed; inset:0; background:rgba(20,18,16,0.45); display:flex; align-items:center; justify-content:center; z-index:500}
   .overlay.hidden{display:none}
-  .modal{position:relative; background:var(--card); border-radius:14px; padding:20px 22px; min-width:360px; max-width:90vw; box-shadow:var(--shadow-lg); color:var(--text)}
+  .modal{
+    position:relative; background:var(--card); border-radius:14px;
+    padding:20px 22px;
+    min-width:min(360px, calc(100vw - 32px));
+    max-width:calc(100vw - 32px);
+    max-height:calc(100vh - 48px);
+    box-shadow:var(--shadow-lg); color:var(--text);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .modal > .modal-body{ overflow-y:auto; min-height:0; flex:1 1 auto; }
+  .modal > .modal-body.settings-body{
+    padding-right:14px;
+    scrollbar-gutter:stable;
+    scrollbar-width:thin;
+    scrollbar-color:var(--theme-border) transparent;
+  }
+  .modal > .modal-body.settings-body::-webkit-scrollbar{width:6px}
+  .modal > .modal-body.settings-body::-webkit-scrollbar-track{background:transparent}
+  .modal > .modal-body.settings-body::-webkit-scrollbar-thumb{
+    background:var(--theme-border); border-radius:999px;
+  }
+  .modal > .modal-body.settings-body::-webkit-scrollbar-thumb:hover{background:var(--theme)}
+  .modal > .modal-actions{ flex-shrink:0; padding-top:6px; }
+  @media (max-height: 560px){
+    .modal{ padding:14px 16px; max-height:calc(100vh - 24px); }
+  }
   .modal-title{font-size:16px; font-weight:600; margin-bottom:14px}
   .modal-close{position:absolute; top:10px; right:10px; width:28px; height:28px; background:transparent; border:none; border-radius:8px; color:var(--muted); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center}
   .modal-close:hover{background:var(--soft)}
@@ -365,9 +452,15 @@
   .toggle .slider::before{content:""; position:absolute; width:18px; height:18px; left:2px; top:2px; background:#fff; border-radius:50%; transition:.18s; box-shadow:0 1px 2px rgba(0,0,0,0.18)}
   .toggle input:checked + .slider{background:var(--accent)}
   .toggle input:checked + .slider::before{transform:translateX(18px)}
+  .toggle input:disabled + .slider{cursor:not-allowed; opacity:.52}
 
   /* calendar */
-  .cal-popup{position:fixed; z-index:600; width:280px; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-md); padding:10px; color:var(--text)}
+  .cal-popup{
+    position:fixed; z-index:600; width:280px; max-width:calc(100vw - 24px);
+    max-height:calc(100vh - 24px); overflow-y:auto;
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    box-shadow:var(--shadow-md); padding:10px; color:var(--text);
+  }
   .cal-popup.hidden{display:none}
   .cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
   .cal-title{font-weight:600; font-size:14px}
@@ -391,6 +484,130 @@
 
   /* defensive: any element with .hidden should never block clicks */
   .hidden{display:none !important}
+
+  /* Horizontal page strip — viewport clips, track slides. */
+  .page-viewport{
+    position:relative; overflow:hidden; width:100%;
+    flex:1 1 auto; min-height:0;
+  }
+  .page-track{
+    display:flex; width:300%; height:100%;
+    transform: translateX(0);
+    will-change: transform;
+  }
+  .page-track.animating{ transition: transform 320ms cubic-bezier(.2,.7,.2,1); }
+  .page-track.settling{ transition: transform 420ms cubic-bezier(.22,1,.36,1); }
+  .page-panel{
+    flex:0 0 33.3333%; min-width:0;
+    height:100%;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .page-panel-chips{ flex:0 0 auto; }
+  .page-panel-scroll{
+    flex:1 1 auto; min-height:0;
+    overflow-y:auto; overflow-x:hidden;
+    padding-right:10px;
+    padding-bottom:170px;       /* clears typing bar + nav island */
+    scrollbar-gutter:stable;
+  }
+
+  /* === Profile setup card === */
+  .profile-overlay{ position:fixed; inset:0; z-index:1100; background:rgba(28,26,24,0.55); display:flex; align-items:center; justify-content:center; padding:20px; }
+  .profile-overlay.hidden{ display:none }
+  .profile-card{
+    background:var(--card); border-radius:16px; padding:28px 28px;
+    width:min(440px, 92vw); box-shadow:var(--shadow-lg);
+  }
+  .profile-title{ font-size:20px; font-weight:700; margin-bottom:8px }
+  .profile-sub{ font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:18px }
+  .profile-options{ display:flex; flex-direction:column; gap:8px }
+  .profile-opt{
+    background:var(--card-soft); border:1px solid var(--border-soft);
+    color:var(--text); padding:12px 14px; border-radius:10px;
+    font-size:14px; font-weight:500; cursor:pointer; text-align:left;
+    transition:background .15s, border-color .15s;
+  }
+  .profile-opt:hover{ background:var(--soft); border-color:var(--border); }
+
+  /* === Tutorial === */
+  .tutorial-overlay{ position:fixed; inset:0; z-index:1050; pointer-events:none; }
+  .tutorial-overlay.hidden{ display:none }
+  .tutorial-dim{ position:absolute; inset:0; background:rgba(20,18,16,0.55); pointer-events:auto; }
+  .tutorial-skip{
+    position:absolute; top:18px; right:18px; pointer-events:auto;
+    background:transparent; border:1px solid rgba(255,255,255,0.4);
+    color:#fff; padding:6px 12px; border-radius:999px; cursor:pointer;
+    font-size:12px;
+  }
+  .tutorial-skip:hover{ background:rgba(255,255,255,0.1); }
+  .tutorial-card{
+    position:absolute; left:50%; bottom:24px; transform:translateX(-50%);
+    width:min(440px, calc(100vw - 32px));
+    max-height:calc(100vh - 200px);
+    overflow-y:auto;
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:18px; box-shadow:var(--shadow-lg); pointer-events:auto;
+  }
+  .tutorial-card.avoid-bottom{
+    top:24px; bottom:auto;
+    max-height:calc(100vh - 190px);
+  }
+  @media (max-height: 560px){
+    .tutorial-card{ padding:12px; bottom:14px; max-height:calc(100vh - 140px) }
+    .tutorial-card.avoid-bottom{ top:12px; bottom:auto; max-height:calc(100vh - 160px) }
+    .tutorial-reel{ height:72px }
+  }
+  .tutorial-step{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px }
+  .tutorial-text{ font-size:15px; line-height:1.45; color:var(--text); margin-bottom:14px }
+  .tutorial-actions{ display:flex; justify-content:space-between; gap:8px }
+  .tutorial-actions .btn-soft, .tutorial-actions .btn { padding:7px 14px; font-size:13px }
+
+  /* Element being highlighted for the tutorial */
+  .tutorial-highlight{
+    position:relative; z-index:1060 !important;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.18), 0 0 0 7px var(--theme-border);
+    border-radius:12px;
+  }
+
+  /* Rotating example reel */
+  .tutorial-reel{
+    position:relative; height:96px; margin-bottom:14px;
+    overflow:hidden; -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);
+    mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);
+  }
+  .tutorial-reel.hidden{ display:none }
+  .tutorial-reel .reel-prev,
+  .tutorial-reel .reel-current,
+  .tutorial-reel .reel-next{
+    position:absolute; left:0; right:0; top:50%; text-align:center;
+    transition:transform 520ms cubic-bezier(.22,.72,.2,1), opacity 420ms ease,
+               color 420ms ease, font-size 420ms ease;
+    font-family:inherit;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 10px;
+  }
+  .tutorial-reel .reel-current{ transform:translateY(-50%); font-size:15px; font-weight:600; color:var(--text); opacity:1 }
+  .tutorial-reel .reel-prev{ transform:translateY(-46px); font-size:13px; font-weight:400; color:var(--muted); opacity:0.38 }
+  .tutorial-reel .reel-next{ transform:translateY(28px); font-size:13px; font-weight:400; color:var(--muted); opacity:0.38 }
+  .tutorial-reel.rolling .reel-prev{ transform:translateY(-92px); opacity:0 }
+  .tutorial-reel.rolling .reel-current{ transform:translateY(-46px); font-size:13px; font-weight:400; color:var(--muted); opacity:0.38 }
+  .tutorial-reel.rolling .reel-next{ transform:translateY(-50%); font-size:15px; font-weight:600; color:var(--text); opacity:1 }
+  .tutorial-reel.reel-reset .reel-prev,
+  .tutorial-reel.reel-reset .reel-current,
+  .tutorial-reel.reel-reset .reel-next{ transition:none !important }
+  @media (prefers-reduced-motion:reduce){
+    .tutorial-reel .reel-prev,
+    .tutorial-reel .reel-current,
+    .tutorial-reel .reel-next{ transition-duration:80ms }
+  }
+
+  /* Teleport flash on a subject card */
+  @keyframes teleportFlash {
+    0%   { box-shadow:0 0 0 0 var(--theme); }
+    50%  { box-shadow:0 0 0 6px var(--theme-soft); }
+    100% { box-shadow:0 0 0 0 transparent; }
+  }
+  .teleport-flash{ animation: teleportFlash 1100ms ease-out; }
 
   /* ===== Persistent typing bar + parse panel ===== */
   .typing-bar{
@@ -423,7 +640,35 @@
   .parse-label{font-size:11px; color:var(--muted); width:54px; flex-shrink:0; text-transform:uppercase; letter-spacing:0.4px}
   .parse-value{color:var(--text); font-weight:500}
   .parse-sub{font-size:11px; color:var(--muted)}
+  .parse-panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:22px}
   .parse-caption{font-size:10px; color:var(--muted); letter-spacing:0.4px; text-transform:uppercase; margin-bottom:2px}
+  .parse-reset{
+    background:transparent; border:none; color:var(--accent); cursor:pointer;
+    padding:3px 7px; border-radius:7px; font-size:11px;
+  }
+  .parse-reset:hover{background:var(--theme-faint)}
+  .parse-row.manual-edited::after{
+    content:'Edited'; margin-left:auto; color:var(--accent); font-size:10px;
+    letter-spacing:.3px; text-transform:uppercase;
+  }
+  .parse-row.no-label.manual-edited::after{display:none}
+  .parse-suggestion-row{ align-items:center }
+  .parse-suggestion-content{
+    flex:1; display:flex; align-items:center; gap:10px;
+    background:var(--card-soft); border:1px dashed var(--border-soft);
+    border-radius:8px; padding:5px 10px;
+  }
+  .parse-suggestion-text{ font-size:12px; color:var(--text); flex:1 }
+  .parse-suggestion-text b{ color:var(--accent) }
+  .parse-suggestion-actions{ display:flex; gap:4px; flex-shrink:0 }
+  .parse-suggest-btn{
+    background:transparent; border:1px solid var(--border-soft);
+    color:var(--muted); cursor:pointer; padding:3px 9px;
+    border-radius:999px; font-size:11px;
+  }
+  .parse-suggest-btn:hover{ color:var(--text); background:var(--soft) }
+  .parse-suggest-btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--on-theme) }
+  .parse-suggest-btn.primary:hover{ background:var(--accent-hover); color:#fff }
   .parse-edit{
     flex:1; min-width:140px; background:transparent;
     border:1px solid transparent; border-radius:8px;
@@ -439,7 +684,7 @@
     font-size:12px; color:var(--text); cursor:pointer; transition:background .15s;
   }
   .quick-pills button:hover{background:var(--soft-hover)}
-  .quick-pills button.active{background:var(--accent); color:#fff}
+  .quick-pills button.active{background:var(--accent); color:var(--on-theme)}
 
   /* upcoming groups */
   .day-group{margin:18px 0 6px}
@@ -497,6 +742,15 @@
     text-decoration:line-through;
     color:var(--muted);
   }
+  .task.completion-leaving, .today-task.completion-leaving{
+    overflow:hidden;
+    box-sizing:border-box;
+    will-change:height, margin, padding, opacity, transform;
+    pointer-events:none;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .task.completion-leaving, .today-task.completion-leaving{transform:none !important; will-change:auto}
+  }
 
   /* task appear animation */
   @keyframes taskAppear {
@@ -527,6 +781,7 @@
   <span class="spacer"></span>
   <span class="count" id="selCount">0 selected</span>
   <span class="spacer"></span>
+  <button class="btn-soft" data-act="complete" type="button">Complete</button>
   <button class="btn-soft" data-act="delete" type="button">Delete</button>
   <button class="btn-soft" data-act="duplicate" type="button">Duplicate</button>
   <button class="btn-soft" data-act="move" type="button">Move</button>
@@ -542,8 +797,7 @@
     </div>
   </div>
   <div class="right">
-    <button id="searchBtn" class="btn-icon" title="Search">⌕</button>
-    <button id="settingsBtn" class="btn-icon" title="Settings">⚙</button>
+    <button id="settingsBtn" class="btn-icon" title="Settings" aria-label="Open settings">⚙</button>
   </div>
 </div>
 
@@ -557,25 +811,61 @@
 </div>
 
 <!-- Page content -->
-<div id="pageContent"></div>
+<div id="pageContent" class="page-viewport">
+  <div id="pageTrack" class="page-track">
+    <section class="page-panel" data-page="today">
+      <div class="page-panel-chips" data-host="chips"></div>
+      <div class="page-panel-scroll" data-host="scroll"></div>
+    </section>
+    <section class="page-panel" data-page="upcoming">
+      <div class="page-panel-chips" data-host="chips"></div>
+      <div class="page-panel-scroll" data-host="scroll"></div>
+    </section>
+    <section class="page-panel" data-page="subjects">
+      <div class="page-panel-chips" data-host="chips"></div>
+      <div class="page-panel-scroll" data-host="scroll"></div>
+    </section>
+  </div>
+</div>
 
 <!-- Persistent bottom typing bar + live parse panel -->
 <div id="parsePanel" class="parse-panel hidden">
-  <div class="parse-caption">This is what will be added</div>
-  <div class="parse-row">
+  <div class="parse-panel-head">
+    <div class="parse-caption">This is what will be added</div>
+    <button class="parse-reset hidden" id="parseResetAll" type="button">Reset changes</button>
+  </div>
+  <div class="parse-row" data-parse-field="task">
     <span class="parse-label">Task</span>
     <input type="text" class="parse-edit" id="parseTaskName" data-field="task" />
   </div>
-  <div class="parse-row">
+  <div class="parse-row" data-parse-field="subject">
     <span class="parse-label">Subject</span>
     <input type="text" class="parse-edit" id="parseSubject" data-field="subject" />
     <span class="parse-sub" id="parseSubjectSub">Task can be organized later</span>
   </div>
-  <div class="parse-row">
-    <span class="parse-label">Due</span>
+  <div class="parse-row parse-suggestion-row hidden" id="parseSuggestionRow">
+    <span class="parse-label"></span>
+    <div class="parse-suggestion-content">
+      <span class="parse-suggestion-text">Did you mean <b id="parseSuggestionName">—</b>?</span>
+      <div class="parse-suggestion-actions">
+        <button type="button" class="parse-suggest-btn primary" data-act="use">Use</button>
+        <button type="button" class="parse-suggest-btn" data-act="keep">Keep typed</button>
+      </div>
+    </div>
+  </div>
+  <div class="parse-row" data-parse-field="tags">
+    <span class="parse-label">Tags</span>
+    <div class="quick-pills" id="parseTagsRow">
+      <button type="button" data-tag="School">School</button>
+      <button type="button" data-tag="Tutor">Tutor</button>
+      <button type="button" data-tag="Home">Home</button>
+    </div>
+  </div>
+  <div class="parse-row" data-parse-field="due">
+    <span class="parse-label" id="parseDueLabel">Due</span>
     <span class="parse-value" id="parseDue">None</span>
   </div>
-  <div class="parse-row no-label">
+  <div class="parse-row no-label" data-parse-field="due">
     <div class="quick-pills" id="quickDueRow">
       <button type="button" data-due="today">Today</button>
       <button type="button" data-due="tomorrow">Tomorrow</button>
@@ -583,7 +873,7 @@
       <button type="button" data-due="none">No due</button>
     </div>
   </div>
-  <div class="parse-row">
+  <div class="parse-row" data-parse-field="repeat">
     <span class="parse-label">Repeats</span>
     <div class="quick-pills" id="repeatRow">
       <button type="button" data-rep="none">No</button>
@@ -592,14 +882,14 @@
       <button type="button" data-rep="fortnightly">Fortnightly</button>
     </div>
   </div>
-  <div class="parse-row" id="parseTimeRow" style="display:none">
+  <div class="parse-row" id="parseTimeRow" data-parse-field="time">
     <span class="parse-label">Time</span>
-    <span class="parse-value" id="parseTime"></span>
+    <input type="text" class="parse-edit" id="parseTime" data-field="time" placeholder="None" />
   </div>
 </div>
 
 <div id="typingBar" class="typing-bar">
-  <input id="typingInput" type="text" autocomplete="off" placeholder="" />
+  <input id="typingInput" type="text" autocomplete="off" placeholder="" aria-label="Capture a task" />
 </div>
 <div class="nav-island" id="navIsland">
   <button data-page="today" type="button">Today</button>
@@ -622,10 +912,42 @@
   <button data-act="delete" class="danger">Delete List</button>
 </div>
 
+<!-- Profile setup card (first run) -->
+<div id="profileOverlay" class="profile-overlay hidden">
+  <div class="profile-card">
+    <div class="profile-title">Who is this planner for?</div>
+    <div class="profile-sub">Loop will customize your experience to make everything feel smoother, clearer, and better suited to you.</div>
+    <div class="profile-options">
+      <button type="button" class="profile-opt" data-profile="student">Student</button>
+      <button type="button" class="profile-opt" data-profile="work">Work</button>
+      <button type="button" class="profile-opt" data-profile="other">Other</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tutorial overlay -->
+<div id="tutorialOverlay" class="tutorial-overlay hidden">
+  <div class="tutorial-dim"></div>
+  <button class="tutorial-skip" id="tutorialSkip" type="button">Skip tutorial</button>
+  <div class="tutorial-card" id="tutorialCard">
+    <div class="tutorial-step" id="tutorialStep">1 of 8</div>
+    <div class="tutorial-text" id="tutorialText"></div>
+    <div class="tutorial-reel hidden" id="tutorialReel">
+      <div class="reel-prev"></div>
+      <div class="reel-current"></div>
+      <div class="reel-next"></div>
+    </div>
+    <div class="tutorial-actions">
+      <button class="btn-soft" id="tutorialBack" type="button">Back</button>
+      <button class="btn" id="tutorialNext" type="button">Next</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal -->
 <div id="modalOverlay" class="overlay hidden">
   <div class="modal">
-    <button id="modalClose" class="modal-close">×</button>
+    <button id="modalClose" class="modal-close" aria-label="Close dialog">×</button>
     <div class="modal-title" id="modalTitle"></div>
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-actions" id="modalActions"></div>
@@ -682,6 +1004,9 @@ let lastDeleted = null;
 let toastTimer = null;
 let isSelectMode = false;
 let recentlyCreatedId = null;
+// Multi-select tag filters. Empty Set = "All".
+let currentFilters = new Set();
+const TAG_OPTIONS = ['School', 'Tutor', 'Home'];
 
 function load(){
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); }
@@ -711,9 +1036,16 @@ function ensureSeed(){
   if (!data.settings.clearCompletedAfter) data.settings.clearCompletedAfter = 'weekly';
   if (!data.settings.currentPage) data.settings.currentPage = 'today';
   if (!data.settings.dateFormat) data.settings.dateFormat = detectDateFormat();
+  if (!data.settings.dateDisplayStyle) {
+    // Migrate existing users: keep their numeric/written choice if set on dateFormat
+    if (data.settings.dateFormat === 'written') data.settings.dateDisplayStyle = 'written';
+    else data.settings.dateDisplayStyle = 'written'; // new default
+  }
   if (data.settings.enableSwipe === undefined) data.settings.enableSwipe = true;
   if (data.settings.enableArrowSort === undefined) data.settings.enableArrowSort = false;
   if (data.settings.animatedSuggestions === undefined) data.settings.animatedSuggestions = true;
+  if (data.settings.profile === undefined) data.settings.profile = null; // 'student' | 'work' | 'other'
+  if (data.settings.onboardingComplete === undefined) data.settings.onboardingComplete = false;
   save();
   // After migration, attempt auto-clear
   autoClearCompleted();
@@ -779,6 +1111,9 @@ function migrateTask(t){
   if (t.expanded === undefined) t.expanded = false;
   if (t.lastCompletedDate === undefined) t.lastCompletedDate = '';
   if (t.completedAt === undefined) t.completedAt = null;
+  // Tags are opt-in. Never silently classify an untagged task as School.
+  if (!Array.isArray(t.tags)) t.tags = [];
+  if (t.important === undefined) t.important = false;
   if (!t.due || typeof t.due !== 'object' || t.due.type === undefined) {
     let due = emptyDue();
     if (t.manualDue) due = { type:'once', date: t.manualDue, frequency:'', day:'' };
@@ -822,18 +1157,66 @@ function mostRecentPastWeekday(idx, from){ const start=startOfDay(from); let dif
 const DOW_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DOW_LONG  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MO_SHORT  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function formatDue(iso){
+// Get an optional relative source ({unit, amount}) from a task or due-object.
+function getRelativeSource(source){
+  if (!source) return null;
+  if (source.due && source.due.relativeUnit) return { unit: source.due.relativeUnit, amount: source.due.relativeAmount || 1 };
+  if (source.relativeUnit) return { unit: source.relativeUnit, amount: source.relativeAmount || 1 };
+  return null;
+}
+function formatRelativePast(rel, today, target){
+  if (rel.unit === 'day') {
+    const days = Math.abs(Math.round((startOfDay(target) - today) / DAY_MS));
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    return days + ' Days Ago';
+  }
+  if (rel.unit === 'week') {
+    const days = Math.abs(Math.round((startOfDay(target) - today) / DAY_MS));
+    const weeks = Math.max(1, Math.round(days / 7));
+    return weeks === 1 ? 'Last Week' : weeks + ' Weeks Ago';
+  }
+  if (rel.unit === 'month') {
+    const m = (today.getFullYear() - target.getFullYear()) * 12 + (today.getMonth() - target.getMonth());
+    const months = Math.max(1, m);
+    return months === 1 ? 'Last Month' : months + ' Months Ago';
+  }
+  if (rel.unit === 'year') {
+    const y = today.getFullYear() - target.getFullYear();
+    const years = Math.max(1, y);
+    return years === 1 ? 'Last Year' : years + ' Years Ago';
+  }
+  return '';
+}
+function formatByStyle(d, style){
+  if (style === 'numeric') {
+    const fmt = (data && data.settings && data.settings.dateFormat) || 'DD/MM';
+    const day = d.getDate(), month = d.getMonth()+1;
+    if (fmt === 'MM/DD') return DOW_SHORT[d.getDay()] + ', ' + month + '/' + day;
+    return DOW_SHORT[d.getDay()] + ', ' + day + '/' + month;
+  }
+  // written (default)
+  return DOW_SHORT[d.getDay()] + ', ' + d.getDate() + ' ' + MO_SHORT[d.getMonth()];
+}
+function formatDue(iso, source){
   const d=fromISO(iso); if(!d) return '';
   const today=todayLocal();
   const diff=Math.round((startOfDay(d)-today)/DAY_MS);
-  if(diff===0) return 'Today'; if(diff===1) return 'Tomorrow'; if(diff===-1) return 'Yesterday';
-  const fmt = (data && data.settings && data.settings.dateFormat) || 'DD/MM';
-  const day = d.getDate();
-  const month = d.getMonth() + 1;
-  if (fmt === 'DD/MM') return DOW_SHORT[d.getDay()] + ', ' + day + '/' + month;
-  if (fmt === 'MM/DD') return DOW_SHORT[d.getDay()] + ', ' + month + '/' + day;
-  // 'written' (default friendly)
-  return DOW_SHORT[d.getDay()] + ', ' + day + ' ' + MO_SHORT[d.getMonth()];
+  // Near future natural labels are always preserved.
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  // Past relative source overrides display style.
+  const rel = getRelativeSource(source);
+  if (diff < 0 && rel) return formatRelativePast(rel, today, d);
+  if (diff === -1) return 'Yesterday';
+  const style = (data && data.settings && data.settings.dateDisplayStyle) || 'written';
+  if (diff < 0) {
+    if (style === 'relative') return Math.abs(diff) + ' Days Ago';
+    return formatByStyle(d, style);
+  }
+  // Future > 1 day
+  if (style === 'numeric') return formatByStyle(d, 'numeric');
+  return formatByStyle(d, 'written');
 }
 function formatDateLong(iso){
   const d=fromISO(iso); if(!d) return '';
@@ -853,11 +1236,25 @@ function computeDueISO(item){
   if (d.type === 'none') return '';
   if (d.type === 'once') return d.date || '';
   if (d.type === 'repeats') {
-    if (d.frequency === 'daily') return toISO(todayLocal());
+    const today = todayLocal();
+    // Honor optional start date — first occurrence is the start date if it's in future.
+    if (d.startDate) {
+      const start = fromISO(d.startDate);
+      if (start && start > today) return d.startDate;
+      if (start && d.frequency === 'daily') return toISO(today);
+      if (start && (d.frequency === 'weekly' || d.frequency === 'fortnightly')) {
+        const cycleDays = d.frequency === 'weekly' ? 7 : 14;
+        const daysSince = Math.round((startOfDay(today) - startOfDay(start)) / DAY_MS);
+        const cyclesPassed = Math.max(0, Math.floor(daysSince / cycleDays));
+        const next = new Date(start);
+        next.setDate(start.getDate() + (daysSince % cycleDays === 0 ? cyclesPassed * cycleDays : (cyclesPassed + 1) * cycleDays));
+        return toISO(next);
+      }
+    }
+    if (d.frequency === 'daily') return toISO(today);
     if (d.frequency === 'weekly' || d.frequency === 'fortnightly') {
       const idx = DAY_NAMES.indexOf(d.day);
       if (idx < 0) return '';
-      const today = todayLocal();
       if (d.frequency === 'weekly') return toISO(nextWeekday(idx, today, 0));
       const anchorISO = item.lastCompletedDate || item.lastResetDate || '';
       if (anchorISO) {
@@ -928,25 +1325,75 @@ function summaryStatus(tasks, sub){
   return { kind:'normal' };
 }
 
-// Urgency rank for sorting (Smart mode)
+// Urgency rank for a single task (Smart mode).
+// 0 overdue · 1 today (or active range) · 2 tomorrow · 3 in 2 days
+// 4 soon (3 days) · 5 future · 6 no due · 7 completed
+// Important is NOT folded into this rank — comparators apply important after
+// urgency so important Today never outranks Overdue.
 function urgencyRankTask(task, sub){
-  if (task.done) return 5;
+  if (task.done) return 7;
   const eff = effectiveTaskDue(task, sub);
-  if (!eff) return 4;
-  const d=fromISO(eff); if(!d) return 4;
-  const diff = Math.round((startOfDay(d) - todayLocal()) / DAY_MS);
-  if (diff < 0) return 0;
-  if (diff === 0) return 1;
-  if (diff <= 3) return 2;
-  return 3;
+  if (!eff) return 6;
+  const d = fromISO(eff); if (!d) return 6;
+  const endISO = taskEndISO(task);
+  const endD = endISO ? fromISO(endISO) : d;
+  const today = todayLocal();
+  const diffStart = Math.round((startOfDay(d) - today) / DAY_MS);
+  const diffEnd   = endD ? Math.round((startOfDay(endD) - today) / DAY_MS) : diffStart;
+  if (diffEnd < 0) return 0;                        // range ended (or single date in past)
+  if (diffStart <= 0 && diffEnd >= 0) return 1;     // today / active range
+  if (diffStart === 1) return 2;
+  if (diffStart === 2) return 3;
+  if (diffStart === 3) return 4;
+  return 5;
 }
-function urgencyRankSubject(sub){
-  const incomplete = sub.tasks.filter(t => !t.done);
-  if (sub.tasks.length > 0 && incomplete.length === 0) return 6; // fully completed
-  if (incomplete.length === 0) return 5;
-  let min = 5;
-  incomplete.forEach(t => { const r = urgencyRankTask(t, sub); if (r < min) min = r; });
-  return min;
+
+// Compare two tasks within the same subject in Smart mode.
+function compareTasksSmart(a, b, sub){
+  const ar = urgencyRankTask(a, sub), br = urgencyRankTask(b, sub);
+  if (ar !== br) return ar - br;
+  // Important first within the same urgency group
+  if (!!a.important !== !!b.important) return a.important ? -1 : 1;
+  // Earlier date first
+  const ad = effectiveTaskDue(a, sub) || '';
+  const bd = effectiveTaskDue(b, sub) || '';
+  if (ad && bd) { if (ad !== bd) return ad < bd ? -1 : 1; }
+  else if (ad) return -1;
+  else if (bd) return 1;
+  return 0;
+}
+
+// Subject's best (most-urgent) rank, computed from filtered + incomplete tasks only.
+// Returns { rank, important, date } where rank uses the same scale as
+// urgencyRankTask plus 8 = fully completed subject (bottom).
+function getSubjectBestRank(sub){
+  const visible = sub.tasks.filter(t => taskMatchesFilter(t));
+  const incomplete = visible.filter(t => !t.done);
+  if (visible.length > 0 && incomplete.length === 0) return { rank: 8, important:false, date:'' };
+  if (incomplete.length === 0) return { rank: 7, important:false, date:'' };
+  let best = null;
+  for (const t of incomplete) {
+    const r = urgencyRankTask(t, sub);
+    const d = effectiveTaskDue(t, sub) || '';
+    const imp = !!t.important;
+    if (!best
+        || r < best.rank
+        || (r === best.rank && imp && !best.important)
+        || (r === best.rank && imp === best.important && d && (!best.date || d < best.date))) {
+      best = { rank: r, important: imp, date: d };
+    }
+  }
+  return best;
+}
+
+function compareSubjectsSmart(a, b){
+  const ai = getSubjectBestRank(a), bi = getSubjectBestRank(b);
+  if (ai.rank !== bi.rank) return ai.rank - bi.rank;
+  if (ai.important !== bi.important) return ai.important ? -1 : 1;
+  if (ai.date && bi.date) { if (ai.date !== bi.date) return ai.date < bi.date ? -1 : 1; }
+  else if (ai.date) return -1;
+  else if (bi.date) return 1;
+  return 0;
 }
 
 // ============================================================
@@ -1030,7 +1477,20 @@ const modalActionsEl = document.getElementById('modalActions');
 const modalCloseBtn = document.getElementById('modalClose');
 let modalState = null;
 
-function closeModal(){ overlayEl.classList.add('hidden'); modalBodyEl.innerHTML=''; modalActionsEl.innerHTML=''; modalState=null; }
+// Recompute the body.overlay-open class based on any active overlay.
+function syncOverlayLock(){
+  const anyOpen =
+    !overlayEl.classList.contains('hidden') ||
+    (typeof calPopup !== 'undefined' && calPopup && !calPopup.classList.contains('hidden')) ||
+    (typeof tutorialOverlay !== 'undefined' && tutorialOverlay && !tutorialOverlay.classList.contains('hidden')) ||
+    (typeof profileOverlay !== 'undefined' && profileOverlay && !profileOverlay.classList.contains('hidden'));
+  document.body.classList.toggle('overlay-open', anyOpen);
+}
+function closeModal(){
+  overlayEl.classList.add('hidden');
+  modalBodyEl.classList.remove('settings-body');
+  modalBodyEl.innerHTML=''; modalActionsEl.innerHTML=''; modalState=null; syncOverlayLock();
+}
 function isModalOpen(){ return !overlayEl.classList.contains('hidden'); }
 function setupActions(okLabel, cancelLabel, onOk, onCancel, danger){
   modalActionsEl.innerHTML = '';
@@ -1052,7 +1512,7 @@ function openInputModal({ title, placeholder, initial, okLabel, onSave }){
   const onCancel = () => closeModal();
   setupActions(okLabel||'Save','Cancel',onOk,onCancel);
   modalState = { onOk, onCancel };
-  overlayEl.classList.remove('hidden');
+  overlayEl.classList.remove('hidden'); syncOverlayLock();
   setTimeout(()=>{input.focus(); input.select();},0);
 }
 function openConfirmModal({ title, message, okLabel, danger, onConfirm }){
@@ -1064,9 +1524,130 @@ function openConfirmModal({ title, message, okLabel, danger, onConfirm }){
   const onCancel = () => closeModal();
   const okBtn = setupActions(okLabel||'OK','Cancel',onOk,onCancel,danger);
   modalState = { onOk, onCancel };
-  overlayEl.classList.remove('hidden');
+  overlayEl.classList.remove('hidden'); syncOverlayLock();
   setTimeout(()=>okBtn.focus(),0);
 }
+function openTaskEditModal(task){
+  modalTitleEl.textContent = 'Edit Task';
+  modalBodyEl.innerHTML = `
+    <div class="form-row"><label>Task name</label><input type="text" data-f="title" placeholder="Task name" /></div>
+    <div class="form-row"><label>Notes</label><textarea data-f="notes" placeholder="Notes"></textarea></div>
+    <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:end;">
+      ${dueFormHTML('tem')}
+    </div>
+    <div class="form-row"><label>Time / Period</label><input type="text" data-f="timeText" placeholder="e.g. Period 6, 11am, 10am – 12:30pm" /></div>
+    <div class="form-row"><label>Tags</label><div class="tag-picker" id="temTagPicker"></div></div>
+    <div class="form-row" style="display:flex; align-items:center; gap:10px;">
+      <label style="margin:0">Important</label>
+      <label class="toggle"><input type="checkbox" data-f="important"/><span class="slider"></span></label>
+    </div>
+  `;
+  const titleI = modalBodyEl.querySelector('[data-f="title"]');
+  const notesI = modalBodyEl.querySelector('[data-f="notes"]');
+  const timeI = modalBodyEl.querySelector('[data-f="timeText"]');
+  titleI.value = task.title || '';
+  notesI.value = task.notes || '';
+  timeI.value = task.timeText || (function(){
+    if (task.notes) {
+      const fl = task.notes.split('\n')[0];
+      if (/^Period\s+\d/i.test(fl) || /^\d{1,2}(?::\d{2})?\s*(am|pm)/i.test(fl)) return fl;
+    }
+    return '';
+  })();
+  const dueBind = bindDueForm(modalBodyEl, 'tem', task.due || emptyDue());
+  // Tag picker
+  const tagHost = modalBodyEl.querySelector('#temTagPicker');
+  const taskTags = new Set(Array.isArray(task.tags) ? task.tags : []);
+  TAG_OPTIONS.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'tag-pill' + (taskTags.has(t) ? ' active' : '');
+    b.textContent = t; b.dataset.tag = t;
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      b.classList.toggle('active');
+    });
+    tagHost.appendChild(b);
+  });
+  // Title Enter saves
+  titleI.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); onDone(); } });
+  timeI.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); onDone(); } });
+
+  const impI = modalBodyEl.querySelector('[data-f="important"]');
+  if (impI) impI.checked = !!task.important;
+  function onDone(){
+    const t = titleI.value.trim(); if (t) task.title = t;
+    task.notes = notesI.value || '';
+    task.timeText = (timeI.value || '').trim();
+    task.due = dueBind.read();
+    const newTags = [...tagHost.querySelectorAll('.tag-pill.active')].map(b => b.dataset.tag);
+    task.tags = newTags;
+    if (impI) task.important = !!impI.checked;
+    closeModal(); save(); render();
+  }
+  function onCancel(){ closeModal(); }
+  function onDelete(){
+    closeModal();
+    openConfirmModal({
+      title:'Delete Task',
+      message:'Delete task "' + (task.title || 'untitled') + '"?',
+      okLabel:'Delete', danger:true,
+      onConfirm: () => {
+        const loc = findTask(task.id); if (!loc) return;
+        loc.parent.splice(loc.idx, 1);
+        save(); render();
+      }
+    });
+  }
+
+  modalActionsEl.innerHTML = '';
+  const delBtn = document.createElement('button'); delBtn.className='btn-danger'; delBtn.textContent='Delete';
+  delBtn.addEventListener('click', onDelete);
+  modalActionsEl.appendChild(delBtn);
+  const spacer = document.createElement('span'); spacer.style.flex='1';
+  modalActionsEl.appendChild(spacer);
+  const cancelBtn = document.createElement('button'); cancelBtn.className='btn-soft'; cancelBtn.textContent='Cancel';
+  cancelBtn.addEventListener('click', onCancel);
+  modalActionsEl.appendChild(cancelBtn);
+  const okBtn = document.createElement('button'); okBtn.className='btn'; okBtn.textContent='Done';
+  okBtn.addEventListener('click', onDone);
+  modalActionsEl.appendChild(okBtn);
+
+  modalState = { onOk: onDone, onCancel: onCancel };
+  overlayEl.classList.remove('hidden'); syncOverlayLock();
+  setTimeout(() => titleI.focus(), 0);
+}
+
+function exportAppData(){
+  try {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const stamp = toISO(new Date());
+    a.download = 'loop-data-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+    console.log('exported data →', a.download);
+  } catch (e) {
+    console.error('export failed', e);
+  }
+}
+function confirmResetAppData(){
+  // Close current modal first so the confirm shows on top cleanly
+  closeModal();
+  openConfirmModal({
+    title: 'Reset app data',
+    message: 'This deletes every list, subject, and task on this device. This cannot be undone.',
+    okLabel: 'Reset', danger: true,
+    onConfirm: () => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+      window.location.reload();
+    }
+  });
+}
+
 function openInfoModal(title, message){
   modalTitleEl.textContent = title;
   modalBodyEl.innerHTML = '';
@@ -1075,9 +1656,10 @@ function openInfoModal(title, message){
   const close = () => closeModal();
   setupActions('OK',null,close,close);
   modalState = { onOk:close, onCancel:close };
-  overlayEl.classList.remove('hidden');
+  overlayEl.classList.remove('hidden'); syncOverlayLock();
 }
 function openSettingsModal(){
+  modalBodyEl.classList.add('settings-body');
   modalTitleEl.textContent = 'Settings';
   modalBodyEl.innerHTML = `
     <div class="settings-group">Appearance</div>
@@ -1087,11 +1669,11 @@ function openSettingsModal(){
     </div>
     <div class="settings-row">
       <div class="label-block"><span>Notifications</span><span class="small">Coming soon</span></div>
-      <label class="toggle"><input type="checkbox" data-f="notifications"/><span class="slider"></span></label>
+      <label class="toggle"><input type="checkbox" data-f="notifications" disabled/><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div class="label-block"><span>Menu Bar Mode</span><span class="small">Coming soon</span></div>
-      <label class="toggle"><input type="checkbox" data-f="menuBarMode"/><span class="slider"></span></label>
+      <label class="toggle"><input type="checkbox" data-f="menuBarMode" disabled/><span class="slider"></span></label>
     </div>
 
     <div class="settings-group">Input</div>
@@ -1109,6 +1691,16 @@ function openSettingsModal(){
         <option value="DD/MM">DD/MM/YYYY</option>
         <option value="MM/DD">MM/DD/YYYY</option>
         <option value="written">Written (Sun, 5 May)</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <div class="label-block">
+        <span>Date display style <span data-info-host="datestyle"></span></span>
+      </div>
+      <select data-f="dateDisplayStyle" style="padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)">
+        <option value="written">Written (Fri, 15 May)</option>
+        <option value="numeric">Numeric (Fri, 15/5)</option>
+        <option value="relative">Relative age (29 Days Ago)</option>
       </select>
     </div>
 
@@ -1137,6 +1729,27 @@ function openSettingsModal(){
         <option value="monthly">Monthly</option>
         <option value="never">Never</option>
       </select>
+    </div>
+    <div class="settings-row">
+      <div class="label-block">
+        <span>Export data</span>
+        <span class="small">Download all tasks and settings as JSON</span>
+      </div>
+      <button class="btn-soft" data-f="exportData" type="button">Export</button>
+    </div>
+    <div class="settings-row">
+      <div class="label-block">
+        <span>Reset app data</span>
+        <span class="small">Delete every list, subject, and task. Cannot be undone.</span>
+      </div>
+      <button class="btn-soft" data-f="resetData" type="button" style="color:#c75050">Reset…</button>
+    </div>
+    <div class="settings-row">
+      <div class="label-block">
+        <span>Replay tutorial</span>
+        <span class="small">Walk through the quick tour again.</span>
+      </div>
+      <button class="btn-soft" data-f="replayTutorial" type="button">Replay</button>
     </div>`;
   modalActionsEl.innerHTML = '';
   const dm = modalBodyEl.querySelector('[data-f="darkMode"]');
@@ -1146,6 +1759,7 @@ function openSettingsModal(){
   const sw = modalBodyEl.querySelector('[data-f="enableSwipe"]');
   const ak = modalBodyEl.querySelector('[data-f="enableArrowSort"]');
   const df = modalBodyEl.querySelector('[data-f="dateFormat"]');
+  const dds = modalBodyEl.querySelector('[data-f="dateDisplayStyle"]');
   const cc = modalBodyEl.querySelector('[data-f="clearCompletedAfter"]');
   dm.checked = !!data.settings.darkMode;
   nf.checked = !!data.settings.notifications;
@@ -1154,6 +1768,7 @@ function openSettingsModal(){
   sw.checked = !!data.settings.enableSwipe;
   ak.checked = !!data.settings.enableArrowSort;
   df.value   = data.settings.dateFormat || 'DD/MM';
+  dds.value  = data.settings.dateDisplayStyle || 'written';
   cc.value = data.settings.clearCompletedAfter || 'weekly';
   dm.addEventListener('change', () => { data.settings.darkMode = dm.checked; save(); applyTheme(); });
   nf.addEventListener('change', () => { data.settings.notifications = nf.checked; save(); });
@@ -1162,10 +1777,17 @@ function openSettingsModal(){
   sw.addEventListener('change', () => { data.settings.enableSwipe = sw.checked; save(); });
   ak.addEventListener('change', () => { data.settings.enableArrowSort = ak.checked; save(); });
   df.addEventListener('change', () => { data.settings.dateFormat = df.value; save(); render(); });
+  dds.addEventListener('change', () => { data.settings.dateDisplayStyle = dds.value; save(); render(); });
   cc.addEventListener('change', () => { data.settings.clearCompletedAfter = cc.value; save(); autoClearCompleted(); render(); });
+  const expBtn = modalBodyEl.querySelector('[data-f="exportData"]');
+  if (expBtn) expBtn.addEventListener('click', (e) => { e.stopPropagation(); exportAppData(); });
+  const rstBtn = modalBodyEl.querySelector('[data-f="resetData"]');
+  if (rstBtn) rstBtn.addEventListener('click', (e) => { e.stopPropagation(); confirmResetAppData(); });
+  const replayBtn = modalBodyEl.querySelector('[data-f="replayTutorial"]');
+  if (replayBtn) replayBtn.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); startTutorial(true); });
   modalBodyEl.querySelectorAll('[data-info-host]').forEach(host => host.appendChild(makeInfoBtn(host.dataset.infoHost)));
   modalState = { onOk: closeModal, onCancel: closeModal, isSettings:true };
-  overlayEl.classList.remove('hidden');
+  overlayEl.classList.remove('hidden'); syncOverlayLock();
 }
 modalCloseBtn.addEventListener('click', () => { if (modalState && modalState.onCancel) modalState.onCancel(); else closeModal(); });
 overlayEl.addEventListener('click', (e) => { if (e.target === overlayEl) { if (modalState && modalState.onCancel) modalState.onCancel(); else closeModal(); } });
@@ -1195,8 +1817,9 @@ function openCalendar(input, onSelect){
   calPopup.style.left = left+'px'; calPopup.style.top = top+'px';
   renderCalendar();
   calPopup.classList.remove('hidden');
+  syncOverlayLock();
 }
-function closeCalendar(){ calPopup.classList.add('hidden'); calOnSelect = null; activeCalInput = null; }
+function closeCalendar(){ calPopup.classList.add('hidden'); calOnSelect = null; activeCalInput = null; syncOverlayLock(); }
 function renderCalendar(){
   const { year, month } = calMonth;
   calTitle.textContent = MONTH_NAMES[month] + ' ' + year;
@@ -1272,6 +1895,7 @@ const TOOLTIP_TEXTS = {
   'swipe': 'Swipe left or right on your trackpad with two fingers to switch between Today, Upcoming, and Organize.',
   'arrowkeys': 'When enabled, ← and → switch between Smart and Manual on the Organize page.',
   'dateformat': 'Controls how typed dates are understood. For example, DD/MM/YYYY reads 5/6 as 5 June.',
+  'datestyle': 'How dates are shown. Written: Fri, 15 May. Numeric: Fri, 15/5. Relative age: 29 Days Ago. Past phrases like "last month" always use the unit you typed.',
   'clearcompleted': 'Automatically removes completed one-time tasks after the selected time. Repeating tasks can still come back.'
 };
 function makeInfoBtn(kind){
@@ -1353,6 +1977,134 @@ function showToast(msg, undoFn){
 function hideToast(){ toastEl.classList.add('hidden'); toastUndoFn = null; if (toastTimer) clearTimeout(toastTimer); toastTimer = null; lastDeleted = null; }
 toastUndoBtn.addEventListener('click', () => { if (toastUndoFn) toastUndoFn(); hideToast(); });
 
+// Completion batching: acknowledge each click immediately, then wait for a
+// short pause before removing every newly completed row and reflowing once.
+const COMPLETION_IDLE_MS = 600;
+const COMPLETION_LEAVE_MS = 480;
+let activeCompletionBatch = null;
+
+function activeTaskPositions(){
+  if (typeof panelScroll !== 'function') return new Map();
+  const host = panelScroll(currentPage); if (!host) return new Map();
+  const out = new Map();
+  host.querySelectorAll('[data-task-id]').forEach(el => {
+    if (el.offsetParent === null) return;
+    const id = el.dataset.taskId;
+    if (id && !out.has(id)) out.set(id, el.getBoundingClientRect().top);
+  });
+  return out;
+}
+function renderWithTaskMotion(){
+  const before = activeTaskPositions();
+  render();
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const host = typeof panelScroll === 'function' ? panelScroll(currentPage) : null;
+  if (!host) return;
+  host.querySelectorAll('[data-task-id]').forEach(el => {
+    const oldTop = before.get(el.dataset.taskId); if (oldTop == null) return;
+    const dy = oldTop - el.getBoundingClientRect().top;
+    if (Math.abs(dy) < 1 || typeof el.animate !== 'function') return;
+    el.animate([{ transform:`translateY(${dy}px)` }, { transform:'translateY(0)' }], {
+      duration:260, easing:'cubic-bezier(.2,.7,.2,1)'
+    });
+  });
+}
+function undoCompletionBatch(batch){
+  if (!batch || batch.cancelled) return;
+  batch.cancelled = true;
+  if (batch.timer) clearTimeout(batch.timer);
+  if (batch.removeTimer) clearTimeout(batch.removeTimer);
+  batch.records.forEach(r => {
+    r.task.done = r.wasDone;
+    r.task.completedAt = r.completedAt;
+    r.task.lastCompletedDate = r.lastCompletedDate;
+  });
+  if (activeCompletionBatch === batch) activeCompletionBatch = null;
+  save(); renderWithTaskMotion();
+}
+function collapseCompletedElement(el, duration){
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const cs = getComputedStyle(el);
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Object.assign(el.style, {
+    boxSizing:'border-box',
+    overflow:'hidden',
+    height:rect.height + 'px',
+    marginTop:cs.marginTop,
+    marginBottom:cs.marginBottom,
+    paddingTop:cs.paddingTop,
+    paddingBottom:cs.paddingBottom,
+    borderTopWidth:cs.borderTopWidth,
+    borderBottomWidth:cs.borderBottomWidth,
+    opacity:cs.opacity,
+    transform:'translateX(0)',
+    transition:'none'
+  });
+  el.classList.add('completion-leaving');
+  // Lock the measured start geometry before beginning the layout collapse.
+  void el.offsetHeight;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const ms = reduced ? 80 : duration;
+    const move = 'cubic-bezier(.45,0,.55,1)';
+    el.style.transition = [
+      `height ${ms}ms ${move}`,
+      `margin-top ${ms}ms ${move}`,
+      `margin-bottom ${ms}ms ${move}`,
+      `padding-top ${ms}ms ${move}`,
+      `padding-bottom ${ms}ms ${move}`,
+      `border-top-width ${ms}ms ${move}`,
+      `border-bottom-width ${ms}ms ${move}`,
+      `opacity ${Math.min(ms, 210)}ms ease`,
+      reduced ? '' : `transform ${Math.min(ms, 260)}ms ${move}`
+    ].filter(Boolean).join(', ');
+    el.style.height = '0px';
+    el.style.marginTop = '0px';
+    el.style.marginBottom = '0px';
+    el.style.paddingTop = '0px';
+    el.style.paddingBottom = '0px';
+    el.style.borderTopWidth = '0px';
+    el.style.borderBottomWidth = '0px';
+    el.style.opacity = '0';
+    if (!reduced) el.style.transform = 'translateX(14px)';
+  }));
+}
+function flushCompletionBatch(batch){
+  if (!batch || batch.cancelled || batch.flushed) return;
+  batch.flushed = true;
+  if (activeCompletionBatch === batch) activeCompletionBatch = null;
+  const host = typeof panelScroll === 'function' ? panelScroll(currentPage) : null;
+  batch.records.forEach(r => {
+    const el = host && host.querySelector('[data-task-id="' + r.task.id + '"]');
+    if (el && el.classList.contains('completing')) collapseCompletedElement(el, COMPLETION_LEAVE_MS);
+  });
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  batch.removeTimer = setTimeout(() => {
+    if (!batch.cancelled) renderWithTaskMotion();
+  }, (reduced ? 80 : COMPLETION_LEAVE_MS) + 50);
+}
+function queueTaskCompletion(task, el){
+  if (!task || task.done) return;
+  let batch = activeCompletionBatch;
+  if (!batch) batch = activeCompletionBatch = { records:[], timer:null, removeTimer:null, flushed:false, cancelled:false };
+  if (batch.records.some(r => r.task.id === task.id)) return;
+  batch.records.push({
+    task,
+    wasDone:task.done,
+    completedAt:task.completedAt,
+    lastCompletedDate:task.lastCompletedDate
+  });
+  task.done = true;
+  task.completedAt = Date.now();
+  if (task.due && task.due.type === 'repeats') task.lastCompletedDate = toISO(new Date());
+  save();
+  if (el) el.classList.add('completing');
+  if (batch.timer) clearTimeout(batch.timer);
+  batch.timer = setTimeout(() => flushCompletionBatch(batch), COMPLETION_IDLE_MS);
+  const n = batch.records.length;
+  showToast(n + ' task' + (n === 1 ? '' : 's') + ' completed', () => undoCompletionBatch(batch));
+}
+
 // ============================================================
 // Selection
 // ============================================================
@@ -1381,7 +2133,19 @@ selBar.addEventListener('click', (e) => {
   const act = e.target.dataset.act; if (!act) return;
   console.log('selection bar →', act);
   if (act === 'cancel') { setSelectMode(false); return; }
-  if (act === 'delete') {
+  if (act === 'complete') {
+    const ids = [...selectedTaskIds];
+    if (ids.length === 0) return;
+    isSelectMode = false;
+    selectedTaskIds.clear(); lastSelectedId = null;
+    updateSelectionBar();
+    document.querySelectorAll('.task.selected,.today-task.selected').forEach(el => el.classList.remove('selected'));
+    ids.forEach(id => {
+      const loc = findTask(id); if (!loc || loc.task.done) return;
+      const el = document.querySelector('.page-panel[data-page="' + currentPage + '"] [data-task-id="' + id + '"]');
+      queueTaskCompletion(loc.task, el);
+    });
+  } else if (act === 'delete') {
     const ids = [...selectedTaskIds];
     if (ids.length === 0) return;
     const removed = [];
@@ -1434,7 +2198,7 @@ function openMoveModal(taskIds){
   });
   setupActions('Cancel', null, closeModal, closeModal);
   modalState = { onOk: closeModal, onCancel: closeModal };
-  overlayEl.classList.remove('hidden');
+  overlayEl.classList.remove('hidden'); syncOverlayLock();
 }
 
 function handleTaskClickForSelection(e, task){
@@ -1471,7 +2235,26 @@ function currentVisibleTaskIdsInOrder(){
 // ============================================================
 // Render
 // ============================================================
-const subjectsContainer = document.getElementById('pageContent');
+// Page strip
+const pageViewport = document.getElementById('pageContent');
+const pageTrack = document.getElementById('pageTrack');
+const pagePanels = {
+  today:    pageTrack.querySelector('.page-panel[data-page="today"]'),
+  upcoming: pageTrack.querySelector('.page-panel[data-page="upcoming"]'),
+  subjects: pageTrack.querySelector('.page-panel[data-page="subjects"]')
+};
+// `subjectsContainer` is the SCROLL host of the panel currently being rendered.
+// Set per-render so existing renderXyzPage code (which appends to it) keeps working.
+function panelChips(pageKey){
+  const p = pagePanels[pageKey] || pagePanels.today;
+  return p.querySelector('[data-host="chips"]') || p;
+}
+function panelScroll(pageKey){
+  const p = pagePanels[pageKey] || pagePanels.today;
+  return p.querySelector('[data-host="scroll"]') || p;
+}
+let subjectsContainer = panelScroll('today');
+function setRenderHost(pageKey){ subjectsContainer = panelScroll(pageKey); }
 const listCurrentEl = document.getElementById('listCurrent');
 const listDropdownEl = document.getElementById('listDropdown');
 const pageTitleEl = document.getElementById('pageTitle');
@@ -1495,6 +2278,19 @@ function render(){
     }
     const selectHost = document.getElementById('selectHost');
     selectHost.innerHTML = '';
+    // + Subject (Organize page only) — always visible, even when filtered or empty
+    if (currentPage === 'subjects' && list) {
+      const addSubBtn = document.createElement('button');
+      addSubBtn.type = 'button';
+      addSubBtn.className = 'select-toggle';
+      addSubBtn.textContent = '+ Subject';
+      addSubBtn.title = 'Add a new subject';
+      addSubBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        promptAddSubject();
+      });
+      selectHost.appendChild(addSubBtn);
+    }
     const selectBtn = document.createElement('button');
     selectBtn.type = 'button';
     selectBtn.className = 'select-toggle' + (isSelectMode ? ' active' : '');
@@ -1516,12 +2312,73 @@ function render(){
 
 function renderContent(){
   const list = getList();
-  subjectsContainer.innerHTML = '';
-  if (!list) { updateSelectionBar(); return; }
-  if (currentPage === 'today') renderTodayPage(list);
-  else if (currentPage === 'upcoming') renderUpcomingPage(list);
-  else renderSubjectsPage(list);
+  // Clear chips + scroll inside each panel (keeps the wrapper structure intact)
+  for (const key of ['today','upcoming','subjects']) {
+    panelChips(key).innerHTML = '';
+    panelScroll(key).innerHTML = '';
+  }
+  if (!list) { updateSelectionBar(); applyTrackTransform(false); return; }
+
+  // Today
+  panelChips('today').appendChild(renderFilterChips());
+  setRenderHost('today');
+  renderTodayPage(list);
+
+  // Upcoming
+  panelChips('upcoming').appendChild(renderFilterChips());
+  setRenderHost('upcoming');
+  renderUpcomingPage(list);
+
+  // Organize (subjects)
+  panelChips('subjects').appendChild(renderFilterChips());
+  setRenderHost('subjects');
+  renderSubjectsPage(list);
+
+  // Restore the active host pointer to the current page
+  setRenderHost(currentPage);
+
   updateSelectionBar();
+  applyTrackTransform(false);
+}
+
+function renderFilterChips(){
+  const wrap = document.createElement('div'); wrap.className = 'filter-chips';
+  const isAll = currentFilters.size === 0;
+  // All chip
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button'; allBtn.className = 'filter-chip' + (isAll ? ' active' : '');
+  allBtn.textContent = 'All';
+  allBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentFilters.clear();
+    renderContent();
+  });
+  wrap.appendChild(allBtn);
+  // Tag chips — multi-select
+  TAG_OPTIONS.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'filter-chip' + (currentFilters.has(t) ? ' active' : '');
+    b.textContent = t;
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentFilters.has(t)) currentFilters.delete(t);
+      else currentFilters.add(t);
+      // If user enabled all three, treat as All (clear specific filters)
+      if (currentFilters.size >= TAG_OPTIONS.length) currentFilters.clear();
+      console.log('filters →', [...currentFilters]);
+      renderContent();
+    });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+function taskMatchesFilter(task){
+  if (!currentFilters || currentFilters.size === 0) return true; // "All"
+  const tags = (task && task.tags) || [];
+  for (const f of currentFilters) if (tags.includes(f)) return true;
+  return false;
 }
 
 function buildSortToggle(list){
@@ -1591,22 +2448,33 @@ function renderTodayPage(list){
   list.subjects.forEach(sub => {
     sub.tasks.forEach(task => {
       if (task.done) return;
+      if (!taskMatchesFilter(task)) return;
       const eff = effectiveTaskDue(task, sub); if (!eff) return;
       const d = fromISO(eff); if (!d) return;
       const endISO = taskEndISO(task);
       const endD = endISO ? fromISO(endISO) : d;
       const diffStart = Math.round((startOfDay(d) - today) / DAY_MS);
       const diffEnd   = endD ? Math.round((startOfDay(endD) - today) / DAY_MS) : diffStart;
-      // overdue, today (or active range), soon (within 2)
       if (diffEnd < 0) items.push({ task, sub, eff, diff: diffStart });
       else if (diffStart <= 0 && diffEnd >= 0) items.push({ task, sub, eff, diff: 0 });
       else if (diffStart <= 2) items.push({ task, sub, eff, diff: diffStart });
     });
   });
-  items.sort((a,b) => a.diff - b.diff || (a.eff < b.eff ? -1 : 1));
+  items.sort((a,b) => {
+    if (a.diff !== b.diff) return a.diff - b.diff;
+    const ai = a.task.important ? 0 : 1, bi = b.task.important ? 0 : 1;
+    if (ai !== bi) return ai - bi;
+    return (a.eff < b.eff ? -1 : (a.eff > b.eff ? 1 : 0));
+  });
   if (items.length === 0) {
     const e = document.createElement('div'); e.className='empty';
-    e.textContent = 'Nothing urgent. Enjoy the breathing room.';
+    if (currentFilters && currentFilters.size > 0) {
+      e.textContent = currentFilters.size === 1
+        ? 'No ' + [...currentFilters][0] + ' tasks here'
+        : 'No tasks match these filters';
+    } else {
+      e.textContent = 'Nothing urgent. Enjoy the breathing room.';
+    }
     subjectsContainer.appendChild(e); return;
   }
   items.forEach(it => subjectsContainer.appendChild(renderTodayItem(it)));
@@ -1615,6 +2483,7 @@ function renderTodayItem(it){
   const { task, sub, eff, diff } = it;
   const el = document.createElement('div'); el.className = 'today-task'; el.dataset.taskId = task.id;
   if (recentlyCreatedId === task.id) el.classList.add('appearing');
+  if (task.important) el.classList.add('important');
   if (diff < 0) el.classList.add('is-overdue');
   else if (diff === 0) el.classList.add('is-today');
   else if (diff === 1) el.classList.add('is-tomorrow');
@@ -1628,32 +2497,53 @@ function renderTodayItem(it){
   // Date + period/time
   const meta = document.createElement('div'); meta.className = 'meta';
   const endISO = taskEndISO(task);
-  const dateStr = (endISO && endISO !== eff) ? (formatDue(eff) + ' – ' + formatDue(endISO)) : formatDue(eff);
+  const dateStr = (endISO && endISO !== eff) ? (formatDue(eff, task) + " – " + formatDue(endISO)) : formatDue(eff, task);
   let metaText = dateStr;
-  if (task.notes && /^Period\s+\d/i.test(task.notes.split('\n')[0])) {
-    metaText += ' · ' + task.notes.split('\n')[0];
-  } else if (task.notes && /^\d{1,2}(?::\d{2})?\s*(am|pm)/i.test(task.notes.split('\n')[0])) {
-    metaText += ' · ' + task.notes.split('\n')[0];
+  let timeBit = task.timeText || '';
+  if (!timeBit && task.notes) {
+    const firstLine = task.notes.split('\n')[0];
+    if (/^Period\s+\d/i.test(firstLine) || /^\d{1,2}(?::\d{2})?\s*(am|pm)/i.test(firstLine)) timeBit = firstLine;
   }
+  if (timeBit) metaText += ' · ' + timeBit;
   meta.textContent = metaText;
+  if (Array.isArray(task.tags)) {
+    task.tags.forEach(tg => {
+      const tp = document.createElement('span'); tp.className = 'tag-pill-mini'; tp.textContent = tg;
+      meta.appendChild(tp);
+    });
+  }
   body.appendChild(meta);
   el.appendChild(body);
-  // Status pill
+  // Status pill — neutral labels (no "Due " prefix)
   const pill = document.createElement('span');
   pill.className = 'pill';
   if (diff < 0) { pill.classList.add('pill-overdue'); pill.textContent = 'Overdue'; }
-  else if (diff === 0) { pill.classList.add('pill-soon'); pill.textContent = 'Due Today'; }
-  else if (diff === 1) { pill.classList.add('pill-soon'); pill.textContent = 'Due Tomorrow'; }
-  else { pill.classList.add('pill-soon'); pill.textContent = 'Due Soon'; }
+  else if (diff === 0) { pill.classList.add('pill-soon'); pill.textContent = 'Today'; }
+  else if (diff === 1) { pill.classList.add('pill-soon'); pill.textContent = 'Tomorrow'; }
+  else if (diff === 2) { pill.classList.add('pill-soon'); pill.textContent = 'In 2 Days'; }
+  else { pill.classList.add('pill-soon'); pill.textContent = 'Soon'; }
   el.appendChild(pill);
+  // Important toggle
+  const impBtnT = document.createElement('button');
+  impBtnT.type='button';
+  impBtnT.className = 'task-important-btn' + (task.important ? ' active' : '');
+  impBtnT.textContent = '!';
+  impBtnT.title = 'Mark important assignments';
+  impBtnT.setAttribute('aria-label', (task.important ? 'Remove important from ' : 'Mark important: ') + (task.title || 'Untitled task'));
+  impBtnT.addEventListener('click', (e) => {
+    e.stopPropagation();
+    task.important = !task.important;
+    save(); render();
+  });
+  el.appendChild(impBtnT);
   // Pen edit
   const penBtn = document.createElement('button');
   penBtn.type='button'; penBtn.className='task-edit-btn'; penBtn.textContent='✎'; penBtn.title='Edit task';
+  penBtn.setAttribute('aria-label', 'Edit ' + (task.title || 'Untitled task'));
   penBtn.addEventListener('click', (e) => {
     console.log('today pen clicked →', task.title);
     e.stopPropagation();
-    setPage('subjects');
-    setTimeout(() => openTaskPanel(task), 0);
+    openTaskEditModal(task);
   });
   el.appendChild(penBtn);
   el.dataset.taskId = task.id;
@@ -1668,12 +2558,7 @@ function renderTodayItem(it){
       return;
     }
     console.log('task clicked (today) →', task.title);
-    task.done = true; task.completedAt = Date.now();
-    if (task.due && task.due.type === 'repeats') task.lastCompletedDate = toISO(new Date());
-    save();
-    el.classList.add('completing');
-    setTimeout(() => { el.classList.add('fading'); }, 280);
-    setTimeout(render, 700);
+    queueTaskCompletion(task, el);
   });
   return el;
 }
@@ -1686,13 +2571,13 @@ function renderUpcomingPage(list){
   list.subjects.forEach(sub => {
     sub.tasks.forEach(task => {
       if (task.done) return;
+      if (!taskMatchesFilter(task)) return;
       const eff = effectiveTaskDue(task, sub); if (!eff) return;
       const d = fromISO(eff); if (!d) return;
       const endISO = taskEndISO(task);
       const endD = endISO ? fromISO(endISO) : d;
       const diffStart = Math.round((startOfDay(d) - today) / DAY_MS);
       const diffEnd = endD ? Math.round((startOfDay(endD) - today) / DAY_MS) : diffStart;
-      // Skip overdue (Today shows them) and active-range (also Today)
       if (diffEnd < 0) return;
       if (diffStart <= 2 && diffEnd >= 0) return;
       if (!byDate.has(eff)) byDate.set(eff, []);
@@ -1701,7 +2586,13 @@ function renderUpcomingPage(list){
   });
   if (byDate.size === 0) {
     const e = document.createElement('div'); e.className='empty';
-    e.textContent = 'Nothing scheduled.';
+    if (currentFilters && currentFilters.size > 0) {
+      e.textContent = currentFilters.size === 1
+        ? 'No ' + [...currentFilters][0] + ' tasks here'
+        : 'No tasks match these filters';
+    } else {
+      e.textContent = 'Nothing scheduled.';
+    }
     subjectsContainer.appendChild(e); return;
   }
   const keys = [...byDate.keys()].sort();
@@ -1710,13 +2601,19 @@ function renderUpcomingPage(list){
     const title = document.createElement('div'); title.className = 'day-group-title';
     title.textContent = formatDateLong(iso);
     group.appendChild(title);
-    byDate.get(iso).forEach(({ task, sub, eff }) => group.appendChild(renderUpcomingItem(task, sub, eff)));
+    const groupItems = byDate.get(iso).slice().sort((a, b) => {
+      // Same date group → important first, then subject name for stability
+      if (!!a.task.important !== !!b.task.important) return a.task.important ? -1 : 1;
+      return (a.sub.name || '').localeCompare(b.sub.name || '');
+    });
+    groupItems.forEach(({ task, sub, eff }) => group.appendChild(renderUpcomingItem(task, sub, eff)));
     subjectsContainer.appendChild(group);
   });
 }
 function renderUpcomingItem(task, sub, eff){
   const el = document.createElement('div'); el.className='today-task'; el.dataset.taskId = task.id;
   if (recentlyCreatedId === task.id) el.classList.add('appearing');
+  if (task.important) el.classList.add('important');
   const body = document.createElement('div'); body.className='body';
   const subjectTag = document.createElement('div'); subjectTag.className='subject-tag'; subjectTag.textContent = sub.name;
   body.appendChild(subjectTag);
@@ -1724,25 +2621,44 @@ function renderUpcomingItem(task, sub, eff){
   body.appendChild(name);
   const meta = document.createElement('div'); meta.className='meta';
   const endISO = taskEndISO(task);
-  const dateStr = (endISO && endISO !== eff) ? (formatDue(eff) + ' – ' + formatDue(endISO)) : formatDue(eff);
+  const dateStr = (endISO && endISO !== eff) ? (formatDue(eff, task) + " – " + formatDue(endISO)) : formatDue(eff, task);
   let metaText = dateStr;
-  if (task.notes) {
+  let timeBit2 = task.timeText || '';
+  if (!timeBit2 && task.notes) {
     const firstLine = task.notes.split('\n')[0];
-    if (/^Period\s+\d/i.test(firstLine) || /^\d{1,2}(?::\d{2})?\s*(am|pm)/i.test(firstLine)) {
-      metaText += ' · ' + firstLine;
-    }
+    if (/^Period\s+\d/i.test(firstLine) || /^\d{1,2}(?::\d{2})?\s*(am|pm)/i.test(firstLine)) timeBit2 = firstLine;
   }
+  if (timeBit2) metaText += ' · ' + timeBit2;
   meta.textContent = metaText;
+  if (Array.isArray(task.tags)) {
+    task.tags.forEach(tg => {
+      const tp = document.createElement('span'); tp.className = 'tag-pill-mini'; tp.textContent = tg;
+      meta.appendChild(tp);
+    });
+  }
   body.appendChild(meta);
   el.appendChild(body);
+  // Important toggle
+  const impBtnU = document.createElement('button');
+  impBtnU.type='button';
+  impBtnU.className = 'task-important-btn' + (task.important ? ' active' : '');
+  impBtnU.textContent = '!';
+  impBtnU.title = 'Mark important assignments';
+  impBtnU.setAttribute('aria-label', (task.important ? 'Remove important from ' : 'Mark important: ') + (task.title || 'Untitled task'));
+  impBtnU.addEventListener('click', (e) => {
+    e.stopPropagation();
+    task.important = !task.important;
+    save(); render();
+  });
+  el.appendChild(impBtnU);
   // Pen edit
   const penBtn = document.createElement('button');
   penBtn.type='button'; penBtn.className='task-edit-btn'; penBtn.textContent='✎'; penBtn.title='Edit task';
+  penBtn.setAttribute('aria-label', 'Edit ' + (task.title || 'Untitled task'));
   penBtn.addEventListener('click', (e) => {
     console.log('upcoming pen clicked →', task.title);
     e.stopPropagation();
-    setPage('subjects');
-    setTimeout(() => openTaskPanel(task), 0);
+    openTaskEditModal(task);
   });
   el.appendChild(penBtn);
   el.dataset.taskId = task.id;
@@ -1757,12 +2673,7 @@ function renderUpcomingItem(task, sub, eff){
       return;
     }
     console.log('task clicked (upcoming) →', task.title);
-    task.done = true; task.completedAt = Date.now();
-    if (task.due && task.due.type === 'repeats') task.lastCompletedDate = toISO(new Date());
-    save();
-    el.classList.add('completing');
-    setTimeout(() => { el.classList.add('fading'); }, 280);
-    setTimeout(render, 700);
+    queueTaskCompletion(task, el);
   });
   return el;
 }
@@ -1776,8 +2687,21 @@ function renderSubjectsPage(list){
     subjectsContainer.appendChild(e); return;
   }
   let subjects = [...list.subjects];
+  // When a specific tag filter is active, hide subjects with no matching task
+  if (currentFilters && currentFilters.size > 0) {
+    subjects = subjects.filter(s => {
+      const visibleTasks = (s.tasks || []).filter(t => taskMatchesFilter(t) && (s.showCompleted || !t.done));
+      return visibleTasks.length > 0;
+    });
+    if (subjects.length === 0) {
+      const e = document.createElement('div'); e.className='empty';
+      if (currentFilters.size === 1) e.textContent = 'No ' + [...currentFilters][0] + ' tasks here';
+      else e.textContent = 'No tasks match these filters';
+      subjectsContainer.appendChild(e); return;
+    }
+  }
   if (list.sortMode === 'smart') {
-    subjects.sort((a,b) => urgencyRankSubject(a) - urgencyRankSubject(b));
+    subjects.sort(compareSubjectsSmart);
   } else {
     // Manual mode: keep order, but fully completed subjects sink
     subjects.sort((a,b) => {
@@ -1807,13 +2731,14 @@ function renderSubject(sub){
   header.appendChild(name);
   const dueLabel = dueLabelText(sub);
   if (dueLabel) { const lbl = document.createElement('span'); lbl.className='due-label'; lbl.textContent = dueLabel; header.appendChild(lbl); }
-  if (stat.kind === 'overdue') { const p=document.createElement('span'); p.className='pill pill-overdue'; p.textContent = stat.count + (stat.count===1?' task overdue !':' tasks overdue !'); header.appendChild(p); }
-  else if (stat.kind === 'soon') { const p=document.createElement('span'); p.className='pill pill-soon'; p.textContent = stat.count + (stat.count===1?' task due soon':' tasks due soon'); header.appendChild(p); }
+  if (stat.kind === 'overdue') { const p=document.createElement('span'); p.className='pill pill-overdue'; p.textContent = stat.count + (stat.count===1?' task overdue':' tasks overdue'); header.appendChild(p); }
+  else if (stat.kind === 'soon') { const p=document.createElement('span'); p.className='pill pill-soon'; p.textContent = stat.count + (stat.count===1?' task soon':' tasks soon'); header.appendChild(p); }
   else if (stat.kind === 'done') { const p=document.createElement('span'); p.className='pill pill-done'; p.textContent='Completed'; header.appendChild(p); }
 
   const editBtn = document.createElement('button');
   editBtn.type='button'; editBtn.className='subject-edit-btn'; editBtn.textContent='✎';
   editBtn.title='Edit subject';
+  editBtn.setAttribute('aria-label', 'Edit subject ' + (sub.name || 'Untitled'));
   editBtn.addEventListener('click', (e) => {
     console.log('subject pen clicked →', sub.name);
     e.stopPropagation();
@@ -1832,9 +2757,9 @@ function renderSubject(sub){
     let tasks = [...sub.tasks];
     // Hide completed unless toggled
     const hasDone = tasks.some(t => t.done);
-    let visible = tasks.filter(t => sub.showCompleted || !t.done);
+    let visible = tasks.filter(t => (sub.showCompleted || !t.done) && taskMatchesFilter(t));
     if (list.sortMode === 'smart') {
-      visible.sort((a,b) => urgencyRankTask(a, sub) - urgencyRankTask(b, sub));
+      visible.sort((a,b) => compareTasksSmart(a, b, sub));
     } else {
       visible.sort((a,b) => (a.done===b.done?0:a.done?1:-1));
     }
@@ -1864,6 +2789,7 @@ function renderTaskCard(sub, task){
   else if (stat === 'done') el.classList.add('tone-done');
   if (selectedTaskIds.has(task.id)) el.classList.add('selected');
   if (recentlyCreatedId === task.id) el.classList.add('appearing');
+  if (task.important) el.classList.add('important');
 
   const row = document.createElement('div'); row.className='task-row';
 
@@ -1893,19 +2819,40 @@ function renderTaskCard(sub, task){
   const title = document.createElement('div'); title.className='task-title'; title.textContent = task.title || 'Untitled task';
   row.appendChild(title);
 
-  if (stat === 'overdue') { const p=document.createElement('span'); p.className='pill pill-overdue'; p.textContent='Overdue !'; row.appendChild(p); }
-  else if (stat === 'soon') { const p=document.createElement('span'); p.className='pill pill-soon'; p.textContent='Due soon'; row.appendChild(p); }
+  if (stat === 'overdue') { const p=document.createElement('span'); p.className='pill pill-overdue'; p.textContent='Overdue'; row.appendChild(p); }
+  else if (stat === 'soon') { const p=document.createElement('span'); p.className='pill pill-soon'; p.textContent='Soon'; row.appendChild(p); }
   else if (stat === 'done') { const p=document.createElement('span'); p.className='pill pill-done'; p.textContent='Completed'; row.appendChild(p); }
   else if (eff) {
     const p=document.createElement('span'); p.className='pill pill-neutral';
     const endISO = taskEndISO(task);
-    p.textContent = (endISO && endISO !== eff) ? (formatDue(eff) + ' – ' + formatDue(endISO)) : formatDue(eff);
+    p.textContent = (endISO && endISO !== eff) ? (formatDue(eff, task) + " – " + formatDue(endISO)) : formatDue(eff, task);
     row.appendChild(p);
   }
+  // Tag pills (subtle)
+  if (Array.isArray(task.tags)) {
+    task.tags.forEach(tg => {
+      const tp = document.createElement('span'); tp.className = 'tag-pill-mini'; tp.textContent = tg;
+      row.appendChild(tp);
+    });
+  }
+
+  const impBtn = document.createElement('button');
+  impBtn.type='button';
+  impBtn.className = 'task-important-btn' + (task.important ? ' active' : '');
+  impBtn.textContent = '!';
+  impBtn.title = 'Mark important assignments';
+  impBtn.setAttribute('aria-label', (task.important ? 'Remove important from ' : 'Mark important: ') + (task.title || 'Untitled task'));
+  impBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    task.important = !task.important;
+    save(); render();
+  });
+  row.appendChild(impBtn);
 
   const penBtn = document.createElement('button');
   penBtn.type='button'; penBtn.className='task-edit-btn'; penBtn.textContent='✎';
   penBtn.title='Edit task';
+  penBtn.setAttribute('aria-label', 'Edit ' + (task.title || 'Untitled task'));
   penBtn.addEventListener('click', (e) => {
     console.log('task pen clicked →', task.title);
     e.stopPropagation();
@@ -1927,20 +2874,14 @@ function renderTaskCard(sub, task){
       updateSelectionBar(); render();
     } else {
       console.log('task clicked (complete) →', task.title);
-      task.done = !task.done;
-      if (task.done) {
-        task.completedAt = Date.now();
-        if (task.due && task.due.type === 'repeats') task.lastCompletedDate = toISO(new Date());
+      if (!task.done) {
+        queueTaskCompletion(task, el);
       } else {
+        task.done = false;
         task.completedAt = null;
         task.lastCompletedDate = '';
+        save(); renderWithTaskMotion();
       }
-      save();
-      if (task.done) {
-        el.classList.add('completing');
-        setTimeout(() => { el.classList.add('fading'); }, 280);
-        setTimeout(render, 700);
-      } else render();
     }
   });
 
@@ -2064,6 +3005,8 @@ function renderTaskPanel(sub, task){
     <div class="full"><label>Task name</label><input type="text" data-f="title" placeholder="Task name"/></div>
     <div class="full"><label>Notes</label><textarea data-f="notes" placeholder="Notes"></textarea></div>
     ${dueFormHTML('task')}
+    <div class="full"><label>Time / Period</label><input type="text" data-f="timeText" placeholder="e.g. Period 6, 11am, 10am – 12:30pm" /></div>
+    <div class="full"><label>Tags</label><div class="tag-picker" data-f="tags"></div></div>
     <div class="actions-row">
       <button class="btn-danger" data-f="delete">Delete</button>
       <div class="actions-right">
@@ -2073,12 +3016,41 @@ function renderTaskPanel(sub, task){
     </div>`;
   const titleI = panel.querySelector('[data-f="title"]'); titleI.value = task.title || '';
   const notesI = panel.querySelector('[data-f="notes"]'); notesI.value = task.notes || '';
+  const timeI = panel.querySelector('[data-f="timeText"]');
+  // Migrate legacy time-from-notes-prefix on the fly so users can edit it
+  if (timeI) {
+    if (task.timeText) {
+      timeI.value = task.timeText;
+    } else if (task.notes) {
+      const firstLine = (task.notes.split('\n')[0] || '').trim();
+      if (/^Period\s+\d/i.test(firstLine) || /^\d{1,2}(?::\d{2})?\s*(am|pm)/i.test(firstLine)) {
+        timeI.value = firstLine;
+      }
+    }
+  }
   const dueBind = bindDueForm(panel, 'task', task.due || emptyDue());
+  // Tag picker
+  const tagHost = panel.querySelector('[data-f="tags"]');
+  if (tagHost) {
+    const taskTags = new Set(Array.isArray(task.tags) ? task.tags : []);
+    TAG_OPTIONS.forEach(t => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'tag-pill' + (taskTags.has(t) ? ' active' : '');
+      b.textContent = t; b.dataset.tag = t;
+      b.addEventListener('click', (e) => { e.stopPropagation(); b.classList.toggle('active'); });
+      tagHost.appendChild(b);
+    });
+  }
   panel.querySelector('[data-f="done"]').addEventListener('click', (e) => {
     e.stopPropagation();
     const t = titleI.value.trim(); if (t) task.title = t;
     task.notes = notesI.value || '';
     task.due = dueBind.read();
+    if (timeI) task.timeText = (timeI.value || '').trim();
+    if (tagHost) {
+      const newTags = [...tagHost.querySelectorAll('.tag-pill.active')].map(b => b.dataset.tag);
+      task.tags = newTags;
+    }
     task.expanded = false; save(); render();
   });
   panel.querySelector('[data-f="cancel"]').addEventListener('click', (e) => {
@@ -2151,6 +3123,13 @@ function readPanelIntoTask(o){
     if (due.frequency === 'weekly' || due.frequency === 'fortnightly') due.day = daySel.value || '';
   }
   o.task.due = due;
+  const timeI = det.querySelector('[data-f="timeText"]');
+  if (timeI) o.task.timeText = (timeI.value || '').trim();
+  const tagHost = det.querySelector('[data-f="tags"]');
+  if (tagHost) {
+    const newTags = [...tagHost.querySelectorAll('.tag-pill.active')].map(b => b.dataset.tag);
+    o.task.tags = newTags;
+  }
 }
 function commitOpenTaskPanel(){
   const o = getOpenTask(); if (!o) return;
@@ -2266,7 +3245,7 @@ listCtxMenu.addEventListener('click', (e) => {
 // ============================================================
 // Search + Settings + FAB + Quick add
 // ============================================================
-document.getElementById('searchBtn').addEventListener('click', (e) => { console.log('search clicked'); e.stopPropagation(); openInfoModal('Search', 'Search is coming soon.'); });
+// Search is available from the visible page controls; the capture bar is task-only.
 document.getElementById('settingsBtn').addEventListener('click', (e) => {
   console.log('settings clicked');
   e.stopPropagation();
@@ -2286,37 +3265,197 @@ const parseSubjectSub = document.getElementById('parseSubjectSub');
 const parseDue = document.getElementById('parseDue');
 const quickDueRow = document.getElementById('quickDueRow');
 const repeatRow = document.getElementById('repeatRow');
+const parseResetAll = document.getElementById('parseResetAll');
 
 const PLACEHOLDERS = [
-  'Math exercise 24-36 due Saturday',
-  'English essay due tomorrow',
-  'Chinese vocab weekly on Friday',
-  'Science worksheet due next Monday',
-  'History test on May 20 period 3',
-  'Chemistry notes due 15/5',
-  'English speech May 15 at 11am',
-  'Science practical tomorrow period 2',
-  'Math assignment May 11-12',
-  'Geography project 11/5-12/5',
-  'Chinese oral next Friday period 4',
-  'Art portfolio due Friday at 3pm',
-  'Science project next Monday to Wednesday',
-  'History assignment Friday to next Monday'
+  'Math worksheet due tomorrow',
+  '#school, #tutor, or #home adds a tag',
+  'Dentist Thursday at 4pm',
+  '“Every Tuesday” makes a task repeat',
+  'Edit the preview before adding',
+  'English essay due next Friday #school',
+  'Practice violin every Tuesday',
+  'Clean my room this weekend #home',
+  'Click a task to complete it',
+  'Select tasks to complete several at once'
 ];
 
-let parsing = {
+function freshParsingState(){ return {
   text:'', parsed:null,
-  override:{ due: undefined, repeat: undefined, subject: undefined, task: undefined, time: undefined },
-  manual:{ task:false, subject:false, due:false, repeat:false, time:false }
-};
+  override:{ due: undefined, repeat: undefined, subject: undefined, task: undefined, time: undefined, tags: undefined },
+  manual:{ task:false, subject:false, due:false, repeat:false, time:false, tags:false },
+  suggestion: null,        // pending typo suggestion (or null)
+  acceptedSuggestion: null,// the one the user accepted (so we don't re-prompt)
+  dismissedSubjectKeys: new Set(),
+  // Tracks where each override came from so a typing-bar change can clear
+  // suggestion-based overrides while preserving truly manual edits.
+  overrideSource: { subject: null, task: null },   // null | 'manual' | 'suggestion'
+  lastSuggestionInputSnapshot: ''
+}; }
+let parsing = freshParsingState();
 
 function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// ===== Subject typo suggestion helpers =====
+const SUBJECT_ALIAS_MAP = {
+  'maths':'Math', 'math':'Math', 'mth':'Math', 'mathematics':'Mathematics',
+  'eng':'English', 'engl':'English',
+  'lit':'Literature',
+  'bio':'Biology',
+  'chem':'Chemistry',
+  'phys':'Physics',
+  'geo':'Geography',
+  'hist':'History',
+  'pe':'PE', 'p.e':'PE', 'p.e.':'PE',
+  'hpe':'HPE',
+  'drama':'Drama',
+  'art':'Art',
+  'music':'Music'
+};
+const SUBJECT_MARKERS = ['for','in','from','about','on','of'];
+const STUDY_MARKERS = ['study','review','revise','practice','prepare'];
+const TASK_WORDS_FOR_SUGGEST = ['test','exam','quiz','assessment','essay','oral','speech','presentation','practical','project','competition','performance','worksheet','homework','vocab','revision','notes','exercise','reading','rehearsal','assignment'];
+const SUBJECT_STOPWORDS = (() => {
+  const s = new Set([
+    'make','do','go','get','have','take','give','put','say','let','use',
+    'email','call','finish','start','work','read','write',
+    'poster','teacher','routine','task',
+    'today','tomorrow','yesterday','tonight','noon','midday','weekend',
+    'monday','tuesday','wednesday','thursday','friday','saturday','sunday',
+    'morning','afternoon','evening','night',
+    'every','each','weekly','daily','fortnightly','next','this','due','at','and','or','the','a','an','my','i','am','pm'
+  ]);
+  SUBJECT_MARKERS.forEach(w => s.add(w));
+  STUDY_MARKERS.forEach(w => s.add(w));
+  TASK_WORDS_FOR_SUGGEST.forEach(w => s.add(w));
+  return s;
+})();
+
+function normalizeSubjectText(t){
+  return (t || '').toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+function levenshteinDistance(a, b){
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  let prev = new Array(n + 1);
+  let curr = new Array(n + 1);
+  for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[n];
+}
+function fuzzyThreshold(maxLen){
+  if (maxLen <= 4) return 1;
+  if (maxLen <= 7) return 2;
+  return 3;
+}
+
+function getSubjectCandidates(text){
+  const trimmed = (text || '').trim();
+  if (!trimmed) return [];
+  const tokens = trimmed.split(/\s+/);
+  const seen = new Set();
+  const out = [];
+  function pushCand(words, sourceType, startIdx){
+    if (!words || words.length === 0) return;
+    const raw = words.join(' ');
+    const norm = normalizeSubjectText(raw);
+    if (!norm) return;
+    if (norm.length < 3) return;
+    // Reject candidates containing any stopword token
+    for (const w of words) {
+      const lc = (w || '').toLowerCase().replace(/[^\w]/g, '');
+      if (SUBJECT_STOPWORDS.has(lc)) return;
+    }
+    const key = sourceType + '|' + norm;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ text: raw, normalized: norm, sourceType, startIndex: startIdx });
+  }
+  // A. Start of input
+  for (let n = 1; n <= 3 && n <= tokens.length; n++) {
+    pushCand(tokens.slice(0, n), 'start', 0);
+  }
+  // B. After subject-introducing markers
+  for (let i = 0; i < tokens.length; i++) {
+    const lc = (tokens[i] || '').toLowerCase();
+    if (SUBJECT_MARKERS.includes(lc)) {
+      for (let n = 1; n <= 3 && i + n < tokens.length; n++) {
+        pushCand(tokens.slice(i + 1, i + 1 + n), 'after-marker', i + 1);
+      }
+    }
+  }
+  // C. After study-marker + "for"
+  for (let i = 0; i < tokens.length - 1; i++) {
+    const lc = (tokens[i] || '').toLowerCase();
+    if (STUDY_MARKERS.includes(lc) && (tokens[i + 1] || '').toLowerCase() === 'for') {
+      for (let n = 1; n <= 3 && i + 2 + n - 1 < tokens.length; n++) {
+        pushCand(tokens.slice(i + 2, i + 2 + n), 'after-study-marker', i + 2);
+      }
+    }
+  }
+  // D. Directly before a task/assessment word
+  for (let i = tokens.length - 1; i >= 1; i--) {
+    const lc = (tokens[i] || '').toLowerCase();
+    if (TASK_WORDS_FOR_SUGGEST.includes(lc)) {
+      for (let n = 1; n <= 3 && i - n >= 0; n++) {
+        pushCand(tokens.slice(i - n, i), 'before-task-word', i - n);
+      }
+    }
+  }
+  return out;
+}
+
+function findSubjectSuggestion(text, knownSubjects){
+  if (!text || !Array.isArray(knownSubjects) || knownSubjects.length === 0) return null;
+  // If any existing subject phrase appears verbatim in the input, do not suggest.
+  const norm = normalizeSubjectText(text);
+  for (const s of knownSubjects) {
+    const sn = normalizeSubjectText(s.name);
+    if (sn && norm.includes(sn)) return null;
+  }
+  // Try alias map against the first token first.
+  const firstToken = (text.trim().split(/\s+/)[0] || '').toLowerCase().replace(/[^\w]/g, '');
+  const aliasTarget = SUBJECT_ALIAS_MAP[firstToken];
+  if (aliasTarget) {
+    const ex = knownSubjects.find(s => s.name.toLowerCase() === aliasTarget.toLowerCase());
+    if (ex) return { subject: ex, candidateText: firstToken, sourceType: 'alias', score: 0 };
+  }
+  // Generate candidates
+  const candidates = getSubjectCandidates(text);
+  const sourcePriority = { 'alias':0, 'after-marker':1, 'after-study-marker':1, 'start':2, 'before-task-word':3 };
+  let best = null;
+  for (const c of candidates) {
+    for (const sub of knownSubjects) {
+      const ns = normalizeSubjectText(sub.name);
+      if (!ns || c.normalized === ns) continue;
+      const dist = levenshteinDistance(c.normalized, ns);
+      const limit = fuzzyThreshold(Math.max(c.normalized.length, ns.length));
+      if (dist > limit) continue;
+      // Penalize: too-short candidate compared to subject is risky
+      if (c.normalized.length < 3) continue;
+      const score = dist * 10 + (sourcePriority[c.sourceType] ?? 5);
+      if (!best || score < best.score) {
+        best = { subject: sub, candidateText: c.text, sourceType: c.sourceType, score, distance: dist };
+      }
+    }
+  }
+  return best;
+}
 function capitalize(s){ return s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : s; }
 
 function parseTaskInput(text){
   const list = getList();
   const knownSubjects = list ? list.subjects.filter(s => s.name).map(s => ({ id:s.id, name:s.name })) : [];
-  const result = { title:'', subject:null, due:null, dueEnd:null, dueLabel:'', repeat:'none', repeatDay:'', time:'' };
+  const result = { title:'', subject:null, due:null, dueEnd:null, dueLabel:'', repeat:'none', repeatDay:'', time:'', tags: [], important:false, startDate:null };
 
   // Pre-pass: expand common abbreviations on a working copy
   let preText = text;
@@ -2333,25 +3472,196 @@ function parseTaskInput(text){
   let working = ' ' + preText + ' ';
   const today = todayLocal();
 
-  // Period / lesson detection: "period 6", "p6", "lesson 6"
-  let pm = working.match(/\b(?:period\s*(\d{1,2})|p(\d{1,2})|lesson\s*(\d{1,2}))\b/i);
-  if (pm) {
-    const num = pm[1] || pm[2] || pm[3];
-    result.time = 'Period ' + num;
-    working = working.replace(pm[0], ' ');
+  // Tag detection: supports both natural words and optional shortcuts such as
+  // #school, while removing the full marker from the saved title.
+  const tagWordMap = { school:'School', class:'School', tutor:'Tutor', tutoring:'Tutor', home:'Home' };
+  const foundTags = new Set();
+  Object.entries(tagWordMap).forEach(([word, tag]) => {
+    const re = new RegExp('(^|\\s)#?' + word + '\\b', 'i');
+    if (re.test(working)) {
+      foundTags.add(tag);
+      working = working.replace(new RegExp('(^|\\s)#?' + word + '\\b', 'gi'), '$1');
+    }
+  });
+  if (foundTags.size > 0) result.tags = [...foundTags];
+
+  // Importance hint: school keywords like test, exam, oral, speech, project, etc.
+  if (/\b(test|exam|exams|assessment|assessments|quiz|oral|speech|presentation|assignment|project|practical)\b/i.test(working)) {
+    result.important = true;
   }
-  // Clock time: "at 11am", "11am", "at 3:30pm", "9:00 am", "noon", "midday"
-  if (!result.time) {
+
+  // ===== Period parsing (with range, last/final, ambiguous) =====
+  let periodPart = '';
+  // "last period" / "final period" / "last lesson" → leave for AI/user
+  let lpm = working.match(/\b(?:last\s+period|final\s+period|last\s+lesson)\b/i);
+  if (lpm) {
+    periodPart = 'Needs detail';
+    result.timeUnknown = true;
+    working = working.replace(lpm[0], ' ');
+  }
+  // Period range: "Period 2 to Period 4" / "p2-p4" / "Period 2 - 4"
+  if (!periodPart) {
+    let prm = working.match(/\b(?:period\s*|p)(\d{1,2})\s*(?:to|through|until|-|–|—)\s*(?:period\s*|p)?(\d{1,2})\b/i);
+    if (prm) {
+      periodPart = 'Period ' + prm[1] + ' – Period ' + prm[2];
+      working = working.replace(prm[0], ' ');
+    }
+  }
+  // Single period: "period 6", "p6", "lesson 6"
+  if (!periodPart) {
+    let pm = working.match(/\b(?:period\s*(\d{1,2})|p(\d{1,2})|lesson\s*(\d{1,2}))\b/i);
+    if (pm) {
+      const num = pm[1] || pm[2] || pm[3];
+      periodPart = 'Period ' + num;
+      working = working.replace(pm[0], ' ');
+    }
+  }
+
+  // ===== Clock parsing (with range) =====
+  let clockPart = '';
+  // Range: "10am to 12:30pm" / "10am-12:30pm" / "from 10am to 12:30pm"
+  let crm = working.match(/\b(?:from\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*(?:to|through|until|-|–|—)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i);
+  if (crm) {
+    clockPart = crm[1].toLowerCase().replace(/\s+/g, '') + ' – ' + crm[2].toLowerCase().replace(/\s+/g, '');
+    working = working.replace(crm[0], ' ');
+  }
+  // Single time: "at 11am", "11am", "at 3:30pm"
+  if (!clockPart) {
     let tm = working.match(/\b(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i);
     if (tm) {
-      result.time = tm[1].toLowerCase().replace(/\s+/g, '');
+      clockPart = tm[1].toLowerCase().replace(/\s+/g, '');
       working = working.replace(tm[0], ' ');
     } else {
       let nm = working.match(/\b(?:at\s+)?(noon|midday)\b/i);
       if (nm) {
-        result.time = '12pm';
+        clockPart = '12pm';
         working = working.replace(nm[0], ' ');
       }
+    }
+  }
+
+  // Combine period + clock if both present
+  if (periodPart && clockPart) result.time = periodPart + ' · ' + clockPart;
+  else if (periodPart) result.time = periodPart;
+  else if (clockPart) result.time = clockPart;
+
+  // ===== Time-of-day parsing (Morning / Noon / Afternoon / Evening / Night / tonight) =====
+  // Patterns: "tonight" (today + Night), "<day> <tod>" with explicit weekday/today/tomorrow.
+  const TOD_DISPLAY = { morning:'Morning', noon:'Noon', afternoon:'Afternoon', evening:'Evening', night:'Night' };
+  if (!result.time) {
+    let tmT = working.match(/\btonight\b/i);
+    if (tmT) {
+      if (!result.due) result.due = toISO(todayLocal());
+      result.time = 'Night';
+      working = working.replace(tmT[0], ' ');
+    }
+  }
+  if (!result.time) {
+    const todAlt = Object.keys(TOD_DISPLAY).join('|');
+    const dayPart = '(?:today|tomorrow|(?:next\\s+|this\\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday))';
+    let tmDT = working.match(new RegExp('\\b(' + dayPart + ')\\s+(' + todAlt + ')\\b', 'i'));
+    if (tmDT) {
+      const dayExpr = tmDT[1].toLowerCase();
+      const tod = tmDT[2].toLowerCase();
+      let iso = null;
+      if (dayExpr === 'today') iso = toISO(todayLocal());
+      else if (dayExpr === 'tomorrow') { const d=new Date(todayLocal()); d.setDate(d.getDate()+1); iso=toISO(d); }
+      else {
+        const dnames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+        const m2 = dayExpr.match(/^(?:next\s+|this\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/);
+        if (m2) {
+          const idx = dnames.indexOf(m2[1]);
+          let diff = idx - todayLocal().getDay(); if (diff <= 0) diff += 7;
+          const d = new Date(todayLocal()); d.setDate(d.getDate()+diff); iso = toISO(d);
+        }
+      }
+      if (iso) {
+        if (!result.due) result.due = iso;
+        result.time = TOD_DISPLAY[tod];
+        working = working.replace(tmDT[0], ' ');
+      }
+    }
+  }
+  // Bare "this morning" / "this afternoon" / "this evening" / "this night"
+  if (!result.time) {
+    const todAlt = Object.keys(TOD_DISPLAY).join('|');
+    let tmBT = working.match(new RegExp('\\bthis\\s+(' + todAlt + ')\\b', 'i'));
+    if (tmBT) {
+      if (!result.due) result.due = toISO(todayLocal());
+      result.time = TOD_DISPLAY[tmBT[1].toLowerCase()];
+      working = working.replace(tmBT[0], ' ');
+    }
+  }
+
+  // ===== Repeat start date: "starting <date>" / "starts <date>" / "from <date>" / "beginning <date>" =====
+  let smStart = working.match(/\b(?:starting|starts|from|beginning|begins)\s+(next\s+week|this\s+week|today|tomorrow|(?:next\s+|this\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|[A-Za-z]+\s+\d{1,2}|\d{1,2}\s+[A-Za-z]+|\d{1,2}[\/\-.]\d{1,2}(?:[\/\-.]\d{2,4})?)\b/i);
+  if (smStart) {
+    const phrase = smStart[1].trim().toLowerCase();
+    let iso = null;
+    if (phrase === 'next week') {
+      const d = new Date(today); d.setDate(d.getDate() + 7);
+      iso = toISO(d);
+    } else if (phrase === 'this week') {
+      iso = toISO(today);
+    } else if (phrase === 'today') {
+      iso = toISO(today);
+    } else if (phrase === 'tomorrow') {
+      const d = new Date(today); d.setDate(d.getDate() + 1);
+      iso = toISO(d);
+    } else {
+      // Reuse tryDateExprStandalone (defined later in the function for ranges)
+      // Inline a simpler fallback for weekday/written/numeric:
+      const dnames2 = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      let mm = phrase.match(/^(?:next\s+|this\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/);
+      if (mm) {
+        const idx = dnames2.indexOf(mm[1]);
+        let diff = idx - today.getDay(); if (diff <= 0) diff += 7;
+        const d = new Date(today); d.setDate(d.getDate()+diff);
+        iso = toISO(d);
+      }
+      if (!iso) {
+        mm = phrase.match(/^([A-Za-z]+)\s+(\d{1,2})$/);
+        if (mm) {
+          const monthIdx = MONTH_NAMES.findIndex(n => n.toLowerCase().startsWith(mm[1].toLowerCase()));
+          const dayNum = parseInt(mm[2]);
+          if (monthIdx >= 0 && dayNum >= 1 && dayNum <= 31) {
+            let y = today.getFullYear(); let c = new Date(y, monthIdx, dayNum);
+            if (c < today) c = new Date(y+1, monthIdx, dayNum);
+            iso = toISO(c);
+          }
+        }
+      }
+      if (!iso) {
+        mm = phrase.match(/^(\d{1,2})\s+([A-Za-z]+)$/);
+        if (mm) {
+          const monthIdx = MONTH_NAMES.findIndex(n => n.toLowerCase().startsWith(mm[2].toLowerCase()));
+          const dayNum = parseInt(mm[1]);
+          if (monthIdx >= 0 && dayNum >= 1 && dayNum <= 31) {
+            let y = today.getFullYear(); let c = new Date(y, monthIdx, dayNum);
+            if (c < today) c = new Date(y+1, monthIdx, dayNum);
+            iso = toISO(c);
+          }
+        }
+      }
+      if (!iso) {
+        mm = phrase.match(/^(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?$/);
+        if (mm) {
+          const a = parseInt(mm[1]), b = parseInt(mm[2]);
+          const fmt = (data.settings && data.settings.dateFormat) || 'DD/MM';
+          const day   = fmt === 'MM/DD' ? b : a;
+          const month = fmt === 'MM/DD' ? a : b;
+          if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+            let year = mm[3] ? (mm[3].length === 2 ? 2000 + parseInt(mm[3]) : parseInt(mm[3])) : today.getFullYear();
+            let c = new Date(year, month-1, day);
+            if (!mm[3] && c < today) c = new Date(year+1, month-1, day);
+            iso = toISO(c);
+          }
+        }
+      }
+    }
+    if (iso) {
+      result.startDate = iso;
+      working = working.replace(smStart[0], ' ');
     }
   }
 
@@ -2419,11 +3729,31 @@ function parseTaskInput(text){
   // Range patterns
   let rangeMatch = null, rangeStart = null, rangeEnd = null;
 
-  // "May 11-12" / "May 11 - 12" — same month, day-day
-  rangeMatch = working.match(/\b([A-Za-z]+)\s+(\d{1,2})\s*[-–—]\s*(\d{1,2})\b/);
+  // Ordinal range without month: "11th to 12th", "on the 11th to 12th", "the 11th to the 12th", "from the 11th to the 12th", "11th-12th"
+  rangeMatch = working.match(/\b(?:(?:on|from)\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\s*(?:to|through|until|-|–|—)\s*(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/i);
   if (rangeMatch) {
-    rangeStart = parseSimpleDate(rangeMatch[1] + ' ' + rangeMatch[2]);
-    rangeEnd   = parseSimpleDate(rangeMatch[1] + ' ' + rangeMatch[3]);
+    const a = parseInt(rangeMatch[1]);
+    const b = parseInt(rangeMatch[2]);
+    if (a >= 1 && a <= 31 && b >= 1 && b <= 31 && a <= b) {
+      // Pick this month if end is still future, else next month
+      let y = today0.getFullYear(), m = today0.getMonth();
+      let candidateEnd = new Date(y, m, b);
+      if (candidateEnd < today0) {
+        m += 1; if (m > 11) { m = 0; y += 1; }
+      }
+      const start = new Date(y, m, a);
+      const end = new Date(y, m, b);
+      rangeStart = toISO(start);
+      rangeEnd = toISO(end);
+    }
+  }
+  // "May 11-12" / "May 11 - 12" — same month, day-day
+  if (!rangeStart) {
+    rangeMatch = working.match(/\b([A-Za-z]+)\s+(\d{1,2})\s*[-–—]\s*(\d{1,2})\b/);
+    if (rangeMatch) {
+      rangeStart = parseSimpleDate(rangeMatch[1] + ' ' + rangeMatch[2]);
+      rangeEnd   = parseSimpleDate(rangeMatch[1] + ' ' + rangeMatch[3]);
+    }
   }
   // "11/5-12/5" / "11-5 to 12-5"
   if (!rangeStart) {
@@ -2513,7 +3843,7 @@ function parseTaskInput(text){
     if (!expr) return null;
     if (expr === 'today') return toISO(today);
     if (expr === 'tomorrow') { const d=new Date(today); d.setDate(d.getDate()+1); return toISO(d); }
-    if (expr === 'weekend') { let diff=6-today.getDay(); if(diff<0) diff+=7; const d=new Date(today); d.setDate(d.getDate()+diff); return toISO(d); }
+    if (expr === 'weekend' || expr === 'this weekend') { let diff=6-today.getDay(); if(diff<0) diff+=7; const d=new Date(today); d.setDate(d.getDate()+diff); return toISO(d); }
     const dnames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
     let mm = expr.match(/^(?:next\s+|this\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/);
     if (mm) {
@@ -2569,6 +3899,52 @@ function parseTaskInput(text){
       working = working.replace(m[0], ' ');
     }
   }
+  // ===== Past relative phrases (run BEFORE generic due/date detection) =====
+  function setPastRelative(unit, amount) {
+    const t = todayLocal();
+    let dd;
+    if (unit === 'day') dd = new Date(t.getTime() - amount * DAY_MS);
+    else if (unit === 'week') dd = new Date(t.getTime() - amount * 7 * DAY_MS);
+    else if (unit === 'month') {
+      dd = new Date(t);
+      const origDay = dd.getDate();
+      dd.setDate(1);
+      dd.setMonth(dd.getMonth() - amount);
+      const dim = new Date(dd.getFullYear(), dd.getMonth()+1, 0).getDate();
+      dd.setDate(Math.min(origDay, dim));
+    } else if (unit === 'year') {
+      dd = new Date(t);
+      const origDay = dd.getDate();
+      dd.setFullYear(dd.getFullYear() - amount);
+      const dim = new Date(dd.getFullYear(), dd.getMonth()+1, 0).getDate();
+      dd.setDate(Math.min(origDay, dim));
+    } else { return; }
+    result.due = toISO(dd);
+    result.relativeSource = { unit, amount };
+  }
+  // "yesterday" / "due yesterday"
+  if (!result.due) {
+    let pmY = working.match(/\b(?:due\s+)?yesterday\b/i);
+    if (pmY) { setPastRelative('day', 1); working = working.replace(pmY[0], ' '); }
+  }
+  // "last week" / "last month" / "last year"
+  if (!result.due) {
+    let pmL = working.match(/\b(?:due\s+)?last\s+(week|month|year)\b/i);
+    if (pmL) { setPastRelative(pmL[1].toLowerCase(), 1); working = working.replace(pmL[0], ' '); }
+  }
+  // "N days/weeks/months/years ago" — "two months ago", "3 weeks ago"
+  if (!result.due) {
+    let pmA = working.match(/\b(?:due\s+)?(\d+|two|three|four|five|six|seven|eight|nine|ten)\s+(day|days|week|weeks|month|months|year|years)\s+ago\b/i);
+    if (pmA) {
+      const numWords = { two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
+      let n = parseInt(pmA[1]);
+      if (isNaN(n)) n = numWords[pmA[1].toLowerCase()];
+      const unit = pmA[2].toLowerCase().replace(/s$/, '');
+      setPastRelative(unit, n);
+      working = working.replace(pmA[0], ' ');
+    }
+  }
+
   // "due X" — accepts numeric, written, or named (supports "this", "next", "on")
   const dueRe = /\bdue\s+(?:on\s+|this\s+|next\s+)*((?:this\s+|next\s+)?(?:today|tomorrow|weekend|sunday|monday|tuesday|wednesday|thursday|friday|saturday)|[A-Za-z]+\s+\d{1,2}|\d{1,2}\s+[A-Za-z]+|\d{1,2}[\/\-.]\d{1,2}(?:[\/\-.]\d{2,4})?)\b/i;
   m = working.match(dueRe);
@@ -2601,39 +3977,55 @@ function parseTaskInput(text){
     }
   }
 
-  // Detect existing subject
-  let detected = null, detectedMatch = null;
-  for (const s of knownSubjects) {
-    const re = new RegExp('\\b' + escapeRegex(s.name) + '\\b', 'i');
-    const mm = working.match(re);
-    if (mm) { detected = s; detectedMatch = mm[0]; break; }
+  // ===== Existing-subject detection =====
+  // Rules:
+  //  - Match only at the START of the user's typed text.
+  //  - Case-insensitive.
+  //  - Longest existing subject name wins (so "Contemporary Music" beats "Music").
+  //  - If nothing matches, the subject stays null and the caller treats it as
+  //    Unsorted. No automatic new-subject creation from the first capitalized
+  //    word — that requires a manual edit in the parse panel.
+  const sortedSubjects = [...knownSubjects].sort((a, b) => (b.name.length - a.name.length));
+  const startText = text.trim();
+  let detected = null;
+  for (const s of sortedSubjects) {
+    const re = new RegExp('^' + escapeRegex(s.name) + '\\b', 'i');
+    if (re.test(startText)) { detected = s; break; }
   }
   if (detected) {
     result.subject = { id: detected.id, name: detected.name, isExisting: true };
-    working = working.replace(new RegExp('\\b' + escapeRegex(detected.name) + '\\b', 'i'), ' ');
-  } else {
-    // Heuristic: first non-stopword token (any case) → new subject candidate (cleaned)
-    const stop = new Set(['today','tomorrow','weekend','monday','tuesday','wednesday','thursday','friday','saturday','sunday','every','each','weekly','daily','fortnightly','due','next','on','the','a','an','and','or','for','with','at','in','of','i','my','do','buy','make','finish','study','review','read','write']);
-    const tokens = text.split(/\s+/).filter(Boolean);
-    for (const t of tokens) {
-      const lc = t.toLowerCase();
-      if (stop.has(lc)) continue;
-      if (!/^[A-Za-z][A-Za-z]+$/.test(t)) continue; // skip numbers/punctuation
-      // Only treat as subject if first word is capitalized OR clearly looks like a subject
-      // For now: only if input begins with a capitalized word
-      if (tokens[0] === t && /^[A-Z]/.test(t)) {
-        const clean = cleanTitle(t);
-        result.subject = { name: clean, isExisting: false, isNew: true };
-        working = working.replace(new RegExp('\\b' + escapeRegex(t) + '\\b'), ' ');
-      }
-      break;
+    // Assessment/event title rule:
+    //   Keep subject in title when the FIRST 1–2 words after the subject phrase
+    //   are an assessment/event word (Math Test, English Essay,
+    //   Contemporary Music Performance). Strip otherwise
+    //   (Math worksheet → Worksheet, Contemporary Music Concert Rehearsals and Performance → Concert Rehearsals and Performance).
+    const ASSESSMENT_WORDS = ['test','exam','quiz','assessment','essay','oral','speech','presentation','practical','project','competition','performance'];
+    const re = new RegExp('\\b' + escapeRegex(detected.name) + '\\b', 'i');
+    const removed = working.replace(re, ' ');
+    const restWords = removed.replace(/\s+/g, ' ').trim().split(' ').slice(0, 2).map(w => w.toLowerCase());
+    const hasAssessment = restWords.some(w => ASSESSMENT_WORDS.includes(w));
+    if (!hasAssessment) {
+      working = removed; // routing usage: remove subject word
+    }
+    // else: keep subject in working so the final title reads "Math Test", "Contemporary Music Performance", etc.
+  }
+  // No `else` branch — we deliberately do NOT auto-create a new subject from
+  // the first capitalized word. Subject stays null → caller renders Unsorted.
+
+  // If repeat is weekly/fortnightly but no day was captured, pull a weekday from anywhere
+  if ((result.repeat === 'weekly' || result.repeat === 'fortnightly') && !result.repeatDay) {
+    let wm = working.match(/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i);
+    if (wm) {
+      result.repeatDay = capitalize(wm[1]);
+      working = working.replace(wm[0], ' ');
     }
   }
-
   // Strip any leftover orphan date/time scaffolding words
   working = working.replace(/\b(?:due|on|this|next|at|to|from|through|until)\b/gi, ' ');
   const rawTitle = working.replace(/\s+/g, ' ').trim();
   result.title = cleanTitle(rawTitle);
+  // Never produce an empty title — fall back to "Task"
+  if (!result.title) result.title = 'Task';
   if (result.due) {
     const d = fromISO(result.due);
     if (d) result.dueLabel = formatDue(result.due);
@@ -2642,7 +4034,7 @@ function parseTaskInput(text){
 }
 
 function effectiveParse(){
-  const p = parsing.parsed || { title:'', subject:null, due:null, dueEnd:null, repeat:'none', repeatDay:'', time:'' };
+  const p = parsing.parsed || { title:'', subject:null, due:null, dueEnd:null, repeat:'none', repeatDay:'', time:'', tags:[] };
   return {
     title:   parsing.override.task    !== undefined ? parsing.override.task    : p.title,
     subject: parsing.override.subject !== undefined ? parsing.override.subject : p.subject,
@@ -2650,7 +4042,8 @@ function effectiveParse(){
     dueEnd:  parsing.override.dueEnd  !== undefined ? parsing.override.dueEnd  : (p.dueEnd || null),
     repeat:  parsing.override.repeat  !== undefined ? parsing.override.repeat  : p.repeat,
     repeatDay: p.repeatDay,
-    time:    parsing.override.time    !== undefined ? parsing.override.time    : (p.time || '')
+    time:    parsing.override.time    !== undefined ? parsing.override.time    : (p.time || ''),
+    tags:    parsing.override.tags    !== undefined ? parsing.override.tags    : (Array.isArray(p.tags) ? p.tags : [])
   };
 }
 
@@ -2660,6 +4053,11 @@ function isParsePanelOpen(){ return !parsePanel.classList.contains('hidden'); }
 
 function renderParsePanel(){
   const eff = effectiveParse();
+  const hasManualChanges = Object.values(parsing.manual).some(Boolean);
+  if (parseResetAll) parseResetAll.classList.toggle('hidden', !hasManualChanges);
+  parsePanel.querySelectorAll('[data-parse-field]').forEach(row => {
+    row.classList.toggle('manual-edited', !!parsing.manual[row.dataset.parseField]);
+  });
   // Task name preview (don't clobber while user is editing it)
   if (!parsing.manual.task && document.activeElement !== parseTaskName) {
     parseTaskName.value = eff.title || (parsing.text.trim() || '');
@@ -2678,22 +4076,53 @@ function renderParsePanel(){
       parseSubjectSub.textContent = 'Task can be organized later';
     }
   }
-  // Due
-  if (eff.due && eff.dueEnd && eff.dueEnd !== eff.due) {
-    parseDue.textContent = formatDue(eff.due) + ' – ' + formatDue(eff.dueEnd);
-  } else if (eff.due) {
-    parseDue.textContent = formatDue(eff.due);
-  } else {
-    parseDue.textContent = 'None';
+  // Typo suggestion row
+  const sugRow = document.getElementById('parseSuggestionRow');
+  const sugName = document.getElementById('parseSuggestionName');
+  if (sugRow && sugName) {
+    if (parsing.suggestion && !parsing.acceptedSuggestion && !parsing.manual.subject) {
+      sugName.textContent = parsing.suggestion.subject.name;
+      sugRow.classList.remove('hidden');
+    } else {
+      sugRow.classList.add('hidden');
+    }
   }
-  // Time
-  const timeRow = document.getElementById('parseTimeRow');
-  const timeEl = document.getElementById('parseTime');
-  if (eff.time) {
-    timeRow.style.display = '';
-    timeEl.textContent = eff.time;
+  // Due — preserve "Last Month" / "2 Weeks Ago" from the in-progress parse
+  const relSrc = parsing.parsed && parsing.parsed.relativeSource
+    ? { relativeUnit: parsing.parsed.relativeSource.unit, relativeAmount: parsing.parsed.relativeSource.amount }
+    : null;
+  // For repeating tasks, swap "Due" → "Starts" and show the start date
+  const dueLabelEl = document.getElementById('parseDueLabel');
+  const isRepeat = eff.repeat && eff.repeat !== 'none';
+  const startISO = (parsing.parsed && parsing.parsed.startDate) || null;
+  if (isRepeat) {
+    if (dueLabelEl) dueLabelEl.textContent = 'Starts';
+    if (startISO) parseDue.textContent = formatDue(startISO);
+    else if (eff.due) parseDue.textContent = formatDue(eff.due, relSrc);
+    else parseDue.textContent = 'Today';
   } else {
-    timeRow.style.display = 'none';
+    if (dueLabelEl) dueLabelEl.textContent = 'Due';
+    if (eff.due && eff.dueEnd && eff.dueEnd !== eff.due) {
+      parseDue.textContent = formatDue(eff.due, relSrc) + ' – ' + formatDue(eff.dueEnd);
+    } else if (eff.due) {
+      parseDue.textContent = formatDue(eff.due, relSrc);
+    } else {
+      parseDue.textContent = 'None';
+    }
+  }
+  // Tags row — highlight selected (effective) tags
+  const tagsRow = document.getElementById('parseTagsRow');
+  if (tagsRow) {
+    const effTags = new Set(Array.isArray(eff.tags) ? eff.tags : []);
+    tagsRow.querySelectorAll('button[data-tag]').forEach(b => {
+      b.classList.toggle('active', effTags.has(b.dataset.tag));
+    });
+  }
+  // Time (editable)
+  const timeEl = document.getElementById('parseTime');
+  if (timeEl && !parsing.manual.time && document.activeElement !== timeEl) {
+    timeEl.value = eff.time || '';
+    timeEl.classList.toggle('muted', !eff.time);
   }
   // Quick due actives
   quickDueRow.querySelectorAll('button').forEach(b => {
@@ -2717,22 +4146,37 @@ function renderParsePanel(){
 }
 
 function clearTypingBar(){
-  parsing = {
-    text:'', parsed:null,
-    override:{ due: undefined, repeat: undefined, subject: undefined, task: undefined, time: undefined },
-    manual:{ task:false, subject:false, due:false, repeat:false, time:false }
-  };
+  parsing = freshParsingState();
   typingInput.value = '';
   hideParsePanel();
+}
+
+function resetParseChanges(){
+  const text = typingInput.value;
+  parsing = freshParsingState();
+  typingInput.value = text;
+  syncParsePanel();
+  typingInput.focus();
+}
+if (parseResetAll) {
+  parseResetAll.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    resetParseChanges();
+  });
 }
 
 // Wire editable preview inputs
 parseTaskName.addEventListener('input', () => {
   parsing.manual.task = true;
+  parsing.overrideSource.task = 'manual';
   parsing.override.task = parseTaskName.value;
 });
 parseSubject.addEventListener('input', () => {
   parsing.manual.subject = true;
+  parsing.overrideSource.subject = 'manual';
+  // Manual subject edit clears any accepted/pending suggestion state
+  parsing.acceptedSuggestion = null;
+  parsing.suggestion = null;
   const v = parseSubject.value.trim();
   if (!v) {
     parsing.override.subject = null; // explicit Unsorted
@@ -2756,9 +4200,23 @@ parseTaskName.addEventListener('keydown', (e) => {
   e.stopPropagation();
 });
 
+const parseTimeInput = document.getElementById('parseTime');
+if (parseTimeInput) {
+  parseTimeInput.addEventListener('input', () => {
+    parsing.manual.time = true;
+    parsing.override.time = parseTimeInput.value || '';
+  });
+  parseTimeInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitTypingBar(); }
+    if (e.key === 'Escape') { e.preventDefault(); clearTypingBar(); }
+    e.stopPropagation();
+  });
+}
+
 function commitTypingBar(){
   const text = typingInput.value.trim();
   if (!text) { hideParsePanel(); return; }
+
   // ensure parsed reflects current text
   parsing.text = text;
   parsing.parsed = parseTaskInput(text);
@@ -2793,36 +4251,58 @@ function commitTypingBar(){
         due.day = DAY_NAMES[todayLocal().getDay()];
       }
     }
+    if (parsing.parsed && parsing.parsed.startDate) due.startDate = parsing.parsed.startDate;
   } else if (eff.due) {
     due = { type:'once', date: eff.due, frequency:'', day:'' };
     if (eff.dueEnd && eff.dueEnd !== eff.due) due.endDate = eff.dueEnd;
+    // Carry through relative source so future displays preserve "Last Month" etc.
+    if (parsing.parsed && parsing.parsed.relativeSource) {
+      due.relativeUnit = parsing.parsed.relativeSource.unit;
+      due.relativeAmount = parsing.parsed.relativeSource.amount;
+    }
   }
 
-  const taskTitle = cleanTitle((eff.title || text).trim());
-  if (!taskTitle) return;
-  const notesPrefix = eff.time ? eff.time + '\n' : '';
+  let taskTitle = cleanTitle((eff.title || text).trim());
+  if (!taskTitle) taskTitle = 'Task';
   const newTaskId = uid();
+  // Honor any manual tag edits made in the parse panel
+  const effTags = (eff.tags && eff.tags.length) ? eff.tags : ((parsing.parsed && parsing.parsed.tags) || []);
+  const tags = effTags;
+  const important = !!(parsing.parsed && parsing.parsed.important);
   targetSub.tasks.push({
-    id: newTaskId, title: taskTitle, notes: notesPrefix, done:false, expanded:false,
-    due, lastCompletedDate:'', completedAt: null
+    id: newTaskId, title: taskTitle, notes: '', done:false, expanded:false,
+    due, lastCompletedDate:'', completedAt: null,
+    timeText: eff.time || '',
+    tags, important
   });
   // Clean subject names too (only newly created)
   if (targetSub && targetSub.name) targetSub.name = cleanTitle(targetSub.name);
   console.log('task created via typing →', taskTitle, '/ subj:', targetSub.name, '/ due:', JSON.stringify(due), '/ time:', eff.time);
   save();
   // Build "Added to …" toast message
-  showAddedToast(buildAddedMessage(due, targetSub));
+  // "Added to …" toast WITH undo (button is rendered next to the text)
+  showToast(buildAddedMessage(due, targetSub, tags), () => {
+    const loc = findTask(newTaskId);
+    if (loc) { loc.parent.splice(loc.idx, 1); save(); render(); }
+  });
   // Mark for appear animation; clear after one render
   recentlyCreatedId = newTaskId;
   setTimeout(() => { recentlyCreatedId = null; }, 400);
   // Clear and refocus for rapid entry
   clearTypingBar();
   render();
-  setTimeout(() => typingInput.focus(), 0);
+  // Refocus synchronously so the next typed character lands in the bar and
+  // dispatches a real `input` event (which calls syncParsePanel and reopens).
+  typingInput.focus();
 }
 
-function buildAddedMessage(due, sub){
-  // Where did the task land?
+function buildAddedMessage(due, sub, tags){
+  // If the new task is filtered out of the current view, surface the tag instead
+  if (currentFilters && currentFilters.size > 0 && Array.isArray(tags) && tags.length) {
+    let matches = false;
+    for (const f of currentFilters) if (tags.includes(f)) { matches = true; break; }
+    if (!matches) return 'Added to ' + tags[0];
+  }
   const today = todayLocal();
   if (due.type === 'once' && due.date) {
     const d = fromISO(due.date);
@@ -2847,19 +4327,75 @@ function showAddedToast(msg){
   showAddedToast._t = setTimeout(() => { el.classList.remove('visible'); }, 1700);
 }
 
-// Input event → parse, show panel
-typingInput.addEventListener('input', () => {
+// Single source of truth: parse panel visibility tracks the typing-bar value.
+function syncParsePanel(){
   const v = typingInput.value;
-  if (!v.trim()) { parsing = { text:'', parsed:null, override:{ due: undefined, repeat: undefined, subject: undefined } }; hideParsePanel(); return; }
+  if (!v.trim()) {
+    // Reset parse state fully so a new task starts clean
+    parsing = {
+      text:'', parsed:null,
+      override:{ due: undefined, repeat: undefined, subject: undefined, task: undefined, time: undefined, tags: undefined },
+      manual:{ task:false, subject:false, due:false, repeat:false, time:false, tags:false },
+      suggestion: null,
+      acceptedSuggestion: null,
+      dismissedSubjectKeys: new Set(),
+      overrideSource: { subject: null, task: null },
+      lastSuggestionInputSnapshot: ''
+    };
+    hideParsePanel();
+    return;
+  }
+
+  // If the user took a suggestion action (Use or Keep typed) and then changed
+  // the typing-bar text meaningfully, drop the suggestion-source state so the
+  // parser re-runs cleanly. Manual edits to parse-panel fields are preserved.
+  if (parsing.lastSuggestionInputSnapshot) {
+    const currentNorm = normalizeSubjectText(v);
+    if (currentNorm !== parsing.lastSuggestionInputSnapshot) {
+      parsing.acceptedSuggestion = null;
+      if (parsing.overrideSource.subject === 'suggestion') {
+        parsing.override.subject = undefined;
+        parsing.manual.subject = false;
+        parsing.overrideSource.subject = null;
+      }
+      if (parsing.overrideSource.task === 'suggestion') {
+        parsing.override.task = undefined;
+        parsing.manual.task = false;
+        parsing.overrideSource.task = null;
+      }
+      // Allow previously dismissed suggestions to re-appear if the new input
+      // genuinely reveals one (per test E).
+      parsing.dismissedSubjectKeys = new Set();
+      parsing.lastSuggestionInputSnapshot = '';
+    }
+  }
+
   parsing.text = v;
   parsing.parsed = parseTaskInput(v);
-  // overrides remain for due/repeat/subject as the user already chose
+
+  // Compute typo suggestion when nothing is detected/overridden and no accepted suggestion is active.
+  if (!parsing.acceptedSuggestion
+      && !parsing.manual.subject
+      && parsing.parsed.subject == null) {
+    const list = getList();
+    const subs = list ? list.subjects : [];
+    const sug = findSubjectSuggestion(v, subs);
+    if (sug) {
+      const key = (sug.candidateText || '').toLowerCase() + '::' + sug.subject.name.toLowerCase();
+      parsing.suggestion = parsing.dismissedSubjectKeys.has(key) ? null : sug;
+    } else {
+      parsing.suggestion = null;
+    }
+  } else {
+    parsing.suggestion = null;
+  }
+
   renderParsePanel();
   showParsePanel();
-});
-typingInput.addEventListener('focus', () => {
-  if (typingInput.value.trim()) { renderParsePanel(); showParsePanel(); }
-});
+}
+typingInput.addEventListener('input', syncParsePanel);
+typingInput.addEventListener('focus', syncParsePanel);
+typingInput.addEventListener('click', syncParsePanel);
 typingInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.stopPropagation(); e.preventDefault();
@@ -2897,24 +4433,120 @@ repeatRow.addEventListener('click', (e) => {
   typingInput.focus();
 });
 
+// Subject typo suggestion — Use / Keep typed
+const parseSuggestionRow = document.getElementById('parseSuggestionRow');
+if (parseSuggestionRow) {
+  parseSuggestionRow.addEventListener('click', (e) => {
+    const btn = e.target.closest('.parse-suggest-btn'); if (!btn) return;
+    e.stopPropagation();
+    const act = btn.dataset.act;
+    const sug = parsing.suggestion;
+    if (!sug) return;
+    if (act === 'use') {
+      applySubjectSuggestion(sug);
+    } else if (act === 'keep') {
+      const key = (sug.candidateText || '').toLowerCase() + '::' + sug.subject.name.toLowerCase();
+      parsing.dismissedSubjectKeys.add(key);
+      parsing.suggestion = null;
+      // Snapshot input so a meaningful later edit can re-allow the suggestion.
+      parsing.lastSuggestionInputSnapshot = normalizeSubjectText(typingInput.value);
+      renderParsePanel();
+    }
+    typingInput.focus();
+  });
+}
+
+function applySubjectSuggestion(sug){
+  if (!sug) return;
+  // 1. Lock the existing subject as the chosen subject (manual override)
+  parsing.override.subject = { id: sug.subject.id, name: sug.subject.name, isExisting: true };
+  parsing.manual.subject = true;
+
+  // 2. Rewrite the title using the corrected subject name and assessment rule
+  let title = (parsing.parsed && parsing.parsed.title) || (parsing.text || '');
+  // Replace the misspelled candidate phrase (case-insensitive) with the corrected name
+  if (sug.candidateText) {
+    const reCand = new RegExp('\\b' + escapeRegex(sug.candidateText) + '\\b', 'i');
+    if (reCand.test(title)) title = title.replace(reCand, sug.subject.name);
+  }
+  // Strip the corrected subject phrase out, then drop subject markers / study markers
+  const reSub = new RegExp('\\b' + escapeRegex(sug.subject.name) + '\\b', 'i');
+  const removed = title.replace(reSub, ' ').replace(/\s+/g, ' ').trim();
+  const cleanedRest = removed.replace(/\b(?:in|for|on|about|from|of|study|review|revise|practice|prepare)\b/gi, ' ').replace(/\s+/g, ' ').trim();
+  const ASSESSMENT_WORDS = ['test','exam','quiz','assessment','essay','oral','speech','presentation','practical','project','competition','performance'];
+  const restWords = cleanedRest.split(' ').filter(Boolean).slice(0, 2).map(w => w.toLowerCase());
+  const hasAssessment = restWords.some(w => ASSESSMENT_WORDS.includes(w));
+  const finalTitle = hasAssessment
+    ? cleanTitle(sug.subject.name + ' ' + cleanedRest).trim()
+    : (cleanTitle(cleanedRest) || sug.subject.name);
+  parsing.override.task = finalTitle;
+  parsing.manual.task = true;
+  parsing.acceptedSuggestion = sug;
+  parsing.suggestion = null;
+  // Tag these overrides as suggestion-sourced and snapshot the input so a
+  // later meaningful typing-bar edit can clear them automatically.
+  parsing.overrideSource.subject = 'suggestion';
+  parsing.overrideSource.task = 'suggestion';
+  parsing.lastSuggestionInputSnapshot = normalizeSubjectText(typingInput.value);
+  renderParsePanel();
+}
+
+// Parse-panel tag pills (multi-select before save)
+const parseTagsRow = document.getElementById('parseTagsRow');
+if (parseTagsRow) {
+  parseTagsRow.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-tag]'); if (!b) return;
+    e.stopPropagation();
+    const eff = effectiveParse();
+    const cur = new Set(eff.tags && eff.tags.length ? eff.tags : []);
+    const t = b.dataset.tag;
+    if (cur.has(t)) cur.delete(t); else cur.add(t);
+    parsing.override.tags = [...cur];
+    parsing.manual.tags = true;
+    console.log('parse tag toggled →', t, [...cur]);
+    renderParsePanel();
+    typingInput.focus();
+  });
+}
+
 // Stop clicks inside the typing area from being treated as outside
 typingBar.addEventListener('click', e => e.stopPropagation());
 parsePanel.addEventListener('click', e => e.stopPropagation());
 
+// Mousedown/mouseup tracking so text-selection drags that start inside
+// the typing bar or parse panel never close the panel, even if the drag
+// ends outside.
+let parseDownInside = false;
+document.addEventListener('mousedown', (e) => {
+  parseDownInside = typingBar.contains(e.target) || parsePanel.contains(e.target);
+}, true);
+document.addEventListener('mouseup', (e) => {
+  if (!isParsePanelOpen()) { parseDownInside = false; return; }
+  // Only close if BOTH mousedown and mouseup happened outside the typing area
+  const upInside = typingBar.contains(e.target) || parsePanel.contains(e.target);
+  if (!parseDownInside && !upInside) {
+    hideParsePanel();
+  }
+  parseDownInside = false;
+});
+
+// (Panel visibility is already driven by syncParsePanel on input/focus/click.)
+
 // ===== Placeholder typing animation =====
-const PH_PREFIX = 'Add task: ';
+const PH_IDLE = 'Add a task…';
 let phIdx = 0, phPos = 0, phMode = 'typing';
 function phTick(){
   // Off if disabled in settings
   const animOff = !data.settings || data.settings.animatedSuggestions === false;
   if (animOff) {
-    typingInput.placeholder = PH_PREFIX;
+    typingInput.placeholder = PH_IDLE;
     setTimeout(phTick, 1500);
     return;
   }
-  // Stop ONLY when focused / has text / parse panel is open. Hover does NOT stop.
-  if (document.activeElement === typingInput || typingInput.value !== '' || isParsePanelOpen()) {
-    typingInput.placeholder = PH_PREFIX;
+  // Focus alone does NOT stop the animation any more. Only typed text
+  // (or an open parse panel — which only opens when there IS text) does.
+  if (typingInput.value !== '' || isParsePanelOpen()) {
+    typingInput.placeholder = PH_IDLE;
     setTimeout(phTick, 500);
     return;
   }
@@ -2922,13 +4554,13 @@ function phTick(){
   let delay = 20;
   if (phMode === 'typing') {
     phPos++;
-    typingInput.placeholder = PH_PREFIX + target.slice(0, phPos);
-    if (phPos >= target.length) { phMode = 'pause'; delay = 800; }
+    typingInput.placeholder = target.slice(0, phPos);
+    if (phPos >= target.length) { phMode = 'pause'; delay = 3200; }
   } else if (phMode === 'pause') {
     phMode = 'deleting'; delay = 30;
   } else {
     phPos--;
-    typingInput.placeholder = PH_PREFIX + target.slice(0, phPos);
+    typingInput.placeholder = target.slice(0, phPos);
     if (phPos <= 0) { phMode = 'typing'; phIdx = (phIdx + 1) % PLACEHOLDERS.length; delay = 180; }
     else delay = 10;
   }
@@ -2944,16 +4576,134 @@ document.getElementById('navIsland').addEventListener('click', (e) => {
   console.log('nav clicked →', b.dataset.page);
   setPage(b.dataset.page);
 });
+// Apply the page-track transform. If `animate`, use the CSS transition;
+// `pixelOffset` is an optional extra px applied during a live gesture.
+let activeTrackAnim = false;
+function applyTrackTransform(animate, pixelOffset){
+  if (!pageTrack) return;
+  // Don't interrupt a running animation or live gesture with a non-animated reset
+  if (!animate && (activeTrackAnim || gestureActive)) return;
+  const i = PAGES.indexOf(currentPage);
+  const w = pageViewport.offsetWidth || pageTrack.offsetWidth || 0;
+  const px = -i * w + (pixelOffset || 0);
+  if (animate) {
+    pageTrack.classList.add('animating');
+    activeTrackAnim = true;
+    setTimeout(() => {
+      pageTrack.classList.remove('animating');
+      activeTrackAnim = false;
+    }, 360);
+  } else {
+    pageTrack.classList.remove('animating');
+  }
+  pageTrack.style.transform = `translateX(${px}px)`;
+}
+
 function setPage(p){
   if (!PAGES.includes(p)) return;
   if (p === currentPage) return;
+  const oldI = PAGES.indexOf(currentPage);
+  const newI = PAGES.indexOf(p);
+  // Stretch the animation slightly when crossing 2 pages (Today ↔ Organize).
+  const distance = Math.abs(newI - oldI);
   currentPage = p;
   data.settings.currentPage = p; save();
+  // Update header pieces (sort toggle, select btn, nav active states) but
+  // do NOT clear pageContent — the panels stay populated for visual passing.
+  // We also don't slide individual panels: the track handles it.
+  // Update header (and any per-page chrome) by calling render — this rebuilds
+  // panel contents but keeps them in place; the track transform below moves
+  // visually from old → new index.
   hideParsePanel();
   render();
+  // Trigger animated track transform
+  pageTrack.classList.add('animating');
+  activeTrackAnim = true;
+  // Optional duration boost for 2-page crossings
+  pageTrack.style.transitionDuration = (260 + (distance - 1) * 100) + 'ms';
+  // Need a frame so the browser applies the (possibly reset) transform
+  // before we change it again — render() already did applyTrackTransform(false)
+  // to the new currentPage. We want to start FROM the old page and animate
+  // TO the new page. Easiest: temporarily set transform back to the old page
+  // without animation, then animate to the new one.
+  const w = pageViewport.offsetWidth || 0;
+  pageTrack.classList.remove('animating');
+  pageTrack.style.transform = `translateX(${-oldI * w}px)`;
+  // Force reflow
+  // eslint-disable-next-line no-unused-expressions
+  pageTrack.offsetWidth;
+  pageTrack.classList.add('animating');
+  pageTrack.style.transform = `translateX(${-newI * w}px)`;
+  setTimeout(() => {
+    pageTrack.classList.remove('animating');
+    pageTrack.style.transitionDuration = '';
+    activeTrackAnim = false;
+  }, 360 + (distance - 1) * 100);
 }
-function nextPage(){ setPage(PAGES[(PAGES.indexOf(currentPage) + 1) % PAGES.length]); }
-function prevPage(){ setPage(PAGES[(PAGES.indexOf(currentPage) - 1 + PAGES.length) % PAGES.length]); }
+// Prompt user for a new subject name. Case-insensitive duplicate detection.
+function promptAddSubject(){
+  openInputModal({
+    title: 'New Subject',
+    placeholder: 'Subject name',
+    okLabel: 'Create',
+    onSave: (name) => {
+      const list = getList();
+      if (!list) return;
+      const trimmed = (name || '').trim();
+      if (!trimmed) return;
+      // Case-insensitive duplicate check
+      const existing = list.subjects.find(s => (s.name||'').toLowerCase() === trimmed.toLowerCase());
+      if (existing) {
+        showToast(existing.name + ' already exists', null);
+        teleportToSubject(existing);
+        return;
+      }
+      const newSub = {
+        id: uid(), name: cleanTitle(trimmed),
+        open: true, tasks: [],
+        due: emptyDue(), lastResetDate: '', showCompleted: false
+      };
+      list.subjects.push(newSub);
+      save();
+      // Make sure we're on Organize so the user can see the new subject
+      if (currentPage !== 'subjects') setPage('subjects');
+      else render();
+      // Briefly flash the new subject so the user sees where it landed
+      setTimeout(() => {
+        const el = document.querySelector('[data-subject-id="' + newSub.id + '"]');
+        if (!el) return;
+        el.scrollIntoView({ behavior:'smooth', block:'start' });
+        el.classList.add('teleport-flash');
+        setTimeout(() => el.classList.remove('teleport-flash'), 1200);
+      }, 320);
+    }
+  });
+}
+
+function teleportToSubject(sub){
+  if (currentPage !== 'subjects') setPage('subjects');
+  if (!sub.open) sub.open = true;
+  save(); render();
+  // After render, scroll the subject card into view and flash it
+  setTimeout(() => {
+    const el = document.querySelector('[data-subject-id="' + sub.id + '"]');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.classList.add('teleport-flash');
+    setTimeout(() => el.classList.remove('teleport-flash'), 1200);
+  }, 320);
+}
+
+function nextPage(){
+  const i = PAGES.indexOf(currentPage);
+  if (i < 0 || i >= PAGES.length - 1) return; // already at the last page → do nothing
+  setPage(PAGES[i + 1]);
+}
+function prevPage(){
+  const i = PAGES.indexOf(currentPage);
+  if (i <= 0) return; // already at the first page → do nothing
+  setPage(PAGES[i - 1]);
+}
 
 // Swipe support
 let touchStartX = null, touchStartY = null;
@@ -3068,10 +4818,8 @@ document.addEventListener('click', (e) => {
   if (!listCtxMenu.classList.contains('hidden') && !listCtxMenu.contains(e.target)) hideListCtxMenu();
   if (!ctxMenu.classList.contains('hidden') && !ctxMenu.contains(e.target)) hideSubjectCtxMenu();
   if (tooltipAnchor && !tooltipEl.contains(e.target) && e.target !== tooltipAnchor) hideTooltip();
-  // Parse panel: hide when clicking outside the typing bar / panel (keep input value)
-  if (isParsePanelOpen() && !typingBar.contains(e.target) && !parsePanel.contains(e.target)) {
-    hideParsePanel();
-  }
+  // (Parse panel close is handled via mousedown/mouseup pair below so text
+  //  selections that start inside the bar/panel don't close it.)
   // Task panel outside-click → commit
   const o = getOpenTask();
   if (o) {
@@ -3197,34 +4945,142 @@ function showSortFeedback(text){
 }
 
 // ============================================================
-// Trackpad two-finger swipe → page navigation
+// Trackpad two-finger swipe → follow the fingers, then glide to the
+// nearest page from the exact release position.
 // ============================================================
-let swipeCooldown = false;
-let wheelAccumX = 0;
-let wheelTimer = null;
-document.addEventListener('wheel', (e) => {
-  if (!data.settings.enableSwipe) return;
-  if (swipeCooldown) return;
-  // Skip when any input/calendar/modal/panel is open
-  if (isModalOpen() || isCalOpen()) return;
-  if (isParsePanelOpen()) return;
+let gestureDeltaX = 0;
+let gestureActive = false;
+let gestureStartIndex = -1;
+let gestureLockedTarget = -1; // -1 = not yet locked
+let gestureIdleTimer = null;
+const WHEEL_DELTA_MULT = 1;
+
+function shouldIgnoreSwipe(e){
+  if (!data.settings.enableSwipe) return true;
+  if (isModalOpen() || isCalOpen() || isParsePanelOpen()) return true;
+  if (isSelectMode || dragInfo) return true;
+  if (tutorialActive) return true;
+  if (activeTrackAnim) return true;
+  if (document.body.classList.contains('overlay-open')) return true;
   const ae = document.activeElement;
-  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
-  if (isSelectMode) return;
-  if (dragInfo) return;
-  // Heuristic: horizontal trackpad scroll
-  if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.2) { wheelAccumX = 0; return; }
-  wheelAccumX += e.deltaX;
-  clearTimeout(wheelTimer);
-  wheelTimer = setTimeout(() => { wheelAccumX = 0; }, 200);
-  if (Math.abs(wheelAccumX) > 80) {
-    swipeCooldown = true;
-    setTimeout(() => { swipeCooldown = false; }, 600);
-    if (wheelAccumX > 0) nextPage();
-    else prevPage();
-    wheelAccumX = 0;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return true;
+  const t = e.target;
+  if (t && t.closest) {
+    if (t.closest('#typingBar') || t.closest('#parsePanel')) return true;
+    if (t.closest('.modal') || t.closest('.cal-popup')) return true;
+    if (t.closest('.ctx-menu') || t.closest('.menu')) return true;
+    if (t.closest('#tutorialOverlay') || t.closest('.tutorial-card')) return true;
+    if (t.closest('#tooltip')) return true;
   }
-}, { passive: true });
+  return false;
+}
+
+function endGesture(forceSnapBack){
+  if (!gestureActive) return;
+  const w = pageViewport.offsetWidth || 0;
+  const startI = gestureStartIndex;
+  const nearestI = forceSnapBack || !w
+    ? startI
+    : Math.max(
+        Math.max(0, startI - 1),
+        Math.min(Math.min(PAGES.length - 1, startI + 1), Math.round(startI + gestureDeltaX / w))
+      );
+  const target = PAGES[nearestI];
+
+  clearTimeout(gestureIdleTimer);
+  gestureIdleTimer = null;
+
+  // Render the destination page chrome while gestureActive is still true.
+  // That keeps render() from resetting the track to a full page first, so the
+  // settle animation begins exactly where the user's fingers released it.
+  if (target !== currentPage) {
+    currentPage = target;
+    data.settings.currentPage = target;
+    save();
+    hideParsePanel();
+    render();
+  }
+
+  gestureActive = false;
+  gestureDeltaX = 0;
+  gestureStartIndex = -1;
+  gestureLockedTarget = -1;
+
+  pageTrack.classList.remove('animating');
+  pageTrack.classList.add('settling');
+  activeTrackAnim = true;
+  pageTrack.style.transform = `translateX(${-nearestI * w}px)`;
+  setTimeout(() => {
+    pageTrack.classList.remove('settling');
+    activeTrackAnim = false;
+  }, 440);
+}
+
+document.addEventListener('wheel', (e) => {
+  if (shouldIgnoreSwipe(e)) { if (gestureActive) endGesture(true); return; }
+  // Horizontal must clearly dominate vertical, with a small noise threshold
+  if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.3) {
+    // Vertical scrolling → end any in-flight gesture cleanly
+    if (gestureActive) endGesture(true);
+    return;
+  }
+
+  // Own horizontal trackpad movement so the browser cannot partially scroll
+  // the document or trigger a competing navigation gesture.
+  e.preventDefault();
+
+  pageTrack.classList.remove('animating');
+  pageTrack.classList.remove('settling');
+  pageTrack.style.transitionDuration = '';
+
+  if (!gestureActive) {
+    gestureActive = true;
+    gestureStartIndex = PAGES.indexOf(currentPage);
+    gestureLockedTarget = -1;
+    gestureDeltaX = 0;
+  }
+
+  // Apply sensitivity multiplier so a fast flick can't drag past one page
+  gestureDeltaX += e.deltaX * WHEEL_DELTA_MULT;
+
+  // Lock direction after small initial movement
+  if (gestureLockedTarget < 0 && Math.abs(gestureDeltaX) > 6) {
+    if (gestureDeltaX > 0 && gestureStartIndex < PAGES.length - 1) {
+      gestureLockedTarget = gestureStartIndex + 1;
+    } else if (gestureDeltaX < 0 && gestureStartIndex > 0) {
+      gestureLockedTarget = gestureStartIndex - 1;
+    } else {
+      // At edge in that direction — give a soft rubber-band feel, no target
+      gestureLockedTarget = gestureStartIndex;
+    }
+  }
+
+  const w = pageViewport.offsetWidth || 0;
+  let offset = -gestureDeltaX;
+
+  if (gestureLockedTarget === gestureStartIndex + 1) {
+    // Forward (toward next page) — offset is negative, clamp to [-w, 0]
+    offset = Math.min(0, Math.max(-w, offset));
+  } else if (gestureLockedTarget === gestureStartIndex - 1) {
+    // Backward — offset is positive, clamp to [0, w]
+    offset = Math.max(0, Math.min(w, offset));
+  } else {
+    // At edge: small rubber-band, capped
+    offset = offset * 0.25;
+    if (gestureStartIndex === 0) offset = Math.max(0, Math.min(w * 0.12, offset));
+    if (gestureStartIndex === PAGES.length - 1) offset = Math.max(-w * 0.12, Math.min(0, offset));
+  }
+
+  pageTrack.style.transform = `translateX(${-gestureStartIndex * w + offset}px)`;
+
+  clearTimeout(gestureIdleTimer);
+  gestureIdleTimer = setTimeout(() => endGesture(false), 120);
+}, { passive: false });
+
+// Window resize → re-align track to current page (no animation)
+window.addEventListener('resize', () => {
+  if (!gestureActive) applyTrackTransform(false);
+});
 
 // Auto-exit selection mode if user focuses the typing bar
 typingInput.addEventListener('focus', () => {
@@ -3255,6 +5111,220 @@ document.addEventListener('keydown', (e) => {
   typingInput.value += e.key;
   typingInput.dispatchEvent(new Event('input'));
 });
+
+// ============================================================
+// First-run profile question + tutorial overlay
+// ============================================================
+const profileOverlay = document.getElementById('profileOverlay');
+const tutorialOverlay = document.getElementById('tutorialOverlay');
+const tutorialCard = document.getElementById('tutorialCard');
+const tutorialText = document.getElementById('tutorialText');
+const tutorialStep = document.getElementById('tutorialStep');
+const tutorialReel = document.getElementById('tutorialReel');
+const reelPrev = tutorialReel.querySelector('.reel-prev');
+const reelCurrent = tutorialReel.querySelector('.reel-current');
+const reelNext = tutorialReel.querySelector('.reel-next');
+const tutorialBack = document.getElementById('tutorialBack');
+const tutorialNext = document.getElementById('tutorialNext');
+const tutorialSkip = document.getElementById('tutorialSkip');
+
+let tutorialActive = false;
+let tutorialIdx = 0;
+let reelTimer = null;
+let reelRollTimer = null;
+let reelAnimating = false;
+let reelItems = [];
+let reelPos = 0;
+
+const TUTORIAL_STEPS = [
+  {
+    target: '#typingBar',
+    text: 'Type naturally to add a task. Loop can recognize dates, times, repeats, and subjects.',
+    reel: ['Math worksheet due tomorrow', 'Dentist Thursday at 4pm', 'Practice violin every Tuesday']
+  },
+  {
+    target: '#typingBar',
+    text: 'Type a task here. Loop previews it before you save.',
+    autofillByProfile: { student: 'Math worksheet due tomorrow', work: 'Report due Friday', other: 'Task due tomorrow' }
+  },
+  {
+    target: '#typingBar',
+    text: 'Check the preview, edit anything you want, then save.'
+  },
+  {
+    target: '#toast',
+    text: 'Loop tells you where your task was added. Click a task when it’s done. Use Undo if needed.'
+  },
+  {
+    target: 'button[data-page="today"]',
+    page: 'today',
+    text: 'Today shows what needs attention now.'
+  },
+  {
+    target: 'button[data-page="upcoming"]',
+    page: 'upcoming',
+    text: 'Upcoming shows later tasks.'
+  },
+  {
+    target: 'button[data-page="subjects"]',
+    page: 'subjects',
+    text: 'Organize groups everything by subject.'
+  },
+  {
+    target: '#sortToggleHost',
+    page: 'subjects',
+    text: 'Smart sorts urgent subjects first. Manual lets you reorder.'
+  }
+];
+
+function showProfileQuestion(){
+  profileOverlay.classList.remove('hidden'); syncOverlayLock();
+}
+function hideProfileQuestion(){
+  profileOverlay.classList.add('hidden'); syncOverlayLock();
+}
+profileOverlay.addEventListener('click', (e) => {
+  const b = e.target.closest('.profile-opt'); if (!b) return;
+  data.settings.profile = b.dataset.profile;
+  save();
+  hideProfileQuestion();
+  startTutorial(false);
+});
+
+function startTutorial(replay){
+  tutorialActive = true;
+  tutorialIdx = 0;
+  tutorialOverlay.classList.remove('hidden');
+  syncOverlayLock();
+  applyTutorialStep();
+}
+function endTutorial(skipped){
+  tutorialActive = false;
+  clearTutorialHighlight();
+  stopReel();
+  tutorialOverlay.classList.add('hidden');
+  syncOverlayLock();
+  data.settings.onboardingComplete = true;
+  save();
+  if (skipped) {
+    showToast('You can replay the tutorial from Settings.', null);
+  } else {
+    showToast('Tutorial complete. You can replay it from Settings.', null);
+  }
+}
+function clearTutorialHighlight(){
+  document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+  if (tutorialCard) tutorialCard.classList.remove('avoid-bottom');
+}
+function positionTutorialCard(targetEl){
+  if (!tutorialCard) return;
+  const rect = targetEl ? targetEl.getBoundingClientRect() : null;
+  tutorialCard.classList.toggle('avoid-bottom', !!rect && rect.top > window.innerHeight * 0.5);
+}
+function applyTutorialStep(){
+  if (!tutorialActive) return;
+  const step = TUTORIAL_STEPS[tutorialIdx];
+  if (!step) { endTutorial(false); return; }
+  // Switch page first if needed
+  if (step.page && currentPage !== step.page) {
+    setPage(step.page);
+    setTimeout(applyTutorialStepNow, 320);
+  } else {
+    applyTutorialStepNow();
+  }
+}
+function applyTutorialStepNow(){
+  const step = TUTORIAL_STEPS[tutorialIdx];
+  if (!step) return;
+  clearTutorialHighlight();
+  let targetEl = null;
+  if (step.target) {
+    targetEl = document.querySelector(step.target);
+    if (targetEl) targetEl.classList.add('tutorial-highlight');
+  }
+  positionTutorialCard(targetEl);
+  tutorialStep.textContent = (tutorialIdx + 1) + ' of ' + TUTORIAL_STEPS.length;
+  tutorialText.textContent = step.text;
+  // Last-step button label
+  tutorialNext.textContent = (tutorialIdx === TUTORIAL_STEPS.length - 1) ? 'Finish tutorial' : 'Next';
+  tutorialBack.style.visibility = (tutorialIdx === 0) ? 'hidden' : 'visible';
+  // Reel
+  stopReel();
+  if (Array.isArray(step.reel) && step.reel.length) {
+    reelItems = step.reel.slice();
+    reelPos = 0;
+    tutorialReel.classList.remove('hidden');
+    paintReel();
+    reelTimer = setInterval(advanceReel, 2800);
+  } else {
+    tutorialReel.classList.add('hidden');
+  }
+  // Step 2 autofill
+  if (step.autofillByProfile) {
+    const fill = step.autofillByProfile[data.settings.profile || 'other'] || step.autofillByProfile.other;
+    if (typingInput && !typingInput.value) {
+      typingInput.value = fill;
+      typingInput.focus();
+      typingInput.dispatchEvent(new Event('input'));
+    }
+  }
+}
+function paintReel(){
+  if (!reelItems.length) return;
+  const n = reelItems.length;
+  reelPrev.textContent    = reelItems[(reelPos - 1 + n) % n];
+  reelCurrent.textContent = reelItems[reelPos];
+  reelNext.textContent    = reelItems[(reelPos + 1) % n];
+}
+function advanceReel(){
+  if (!tutorialActive || reelAnimating || reelItems.length < 2) return;
+  reelAnimating = true;
+  tutorialReel.classList.add('rolling');
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  reelRollTimer = setTimeout(() => {
+    reelPos = (reelPos + 1) % reelItems.length;
+    tutorialReel.classList.add('reel-reset');
+    paintReel();
+    tutorialReel.classList.remove('rolling');
+    void tutorialReel.offsetHeight;
+    requestAnimationFrame(() => {
+      tutorialReel.classList.remove('reel-reset');
+      reelAnimating = false;
+    });
+    reelRollTimer = null;
+  }, reduced ? 80 : 520);
+}
+function stopReel(){
+  if (reelTimer) { clearInterval(reelTimer); reelTimer = null; }
+  if (reelRollTimer) { clearTimeout(reelRollTimer); reelRollTimer = null; }
+  reelAnimating = false;
+  tutorialReel.classList.remove('rolling', 'reel-reset');
+}
+
+tutorialNext.addEventListener('click', () => {
+  if (tutorialIdx >= TUTORIAL_STEPS.length - 1) { endTutorial(false); return; }
+  tutorialIdx++;
+  applyTutorialStep();
+});
+tutorialBack.addEventListener('click', () => {
+  if (tutorialIdx === 0) return;
+  tutorialIdx--;
+  applyTutorialStep();
+});
+tutorialSkip.addEventListener('click', () => endTutorial(true));
+// Esc closes the tutorial
+document.addEventListener('keydown', (e) => {
+  if (tutorialActive && e.key === 'Escape') { e.preventDefault(); endTutorial(true); }
+});
+
+// Decide whether to show profile / tutorial on launch
+(function maybeStartOnboarding(){
+  if (!data.settings.profile) {
+    showProfileQuestion();
+  } else if (!data.settings.onboardingComplete) {
+    startTutorial(false);
+  }
+})();
 
 // First paint
 render();
